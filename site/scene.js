@@ -45,7 +45,6 @@
   var grayLine = new THREE.LineBasicMaterial({ color: EDGE_GRAY, transparent: true, opacity: 0.9 });
   var blueLine = new THREE.LineBasicMaterial({ color: EDGE_BLUE, transparent: true, opacity: 0.95 });
   var grayRim = new THREE.MeshBasicMaterial({ color: EDGE_GRAY, side: THREE.BackSide });
-  var blueRim = new THREE.MeshBasicMaterial({ color: EDGE_BLUE, side: THREE.BackSide });
   var glowMat = new THREE.MeshStandardMaterial({ color: 0x0e7490, emissive: ACCENT, emissiveIntensity: 0.22, metalness: 0.3, roughness: 0.4 });
 
   HL.applyTheme = function () {
@@ -113,9 +112,6 @@
       var blue = material === cyanMat;
       var m = hexPrism(0.95, 0.5, material);
       m.children[0].material = blue ? blueLine : grayLine;
-      var rim = new THREE.Mesh(m.geometry, blue ? blueRim : grayRim);
-      rim.scale.set(1.09, 1.09, 1.04);
-      m.add(rim);
       return { m: m, x: x, y: y, ox: ox, oy: oy, oz: oz, rz: rz };
     }
     var g = new THREE.Group();
@@ -219,13 +215,13 @@
     var wide = camera.aspect > 1.15;
 
     /* Logo: monta no início (vindo dos cantos) e se espalha de novo ao descer */
-    var intro = reduced ? 1 : Math.min(1, Math.max(0, (t - 0.25) / 2.4));
+    var intro = reduced ? 1 : Math.min(1, Math.max(0, (t - 0.1) / 1.3));
     var scatter = smooth(heroS, 0.04, 0.75);
     placeParts(L1, intro * (1 - scatter), t, 0.22);
     logo.visible = scatter < 0.995;
-    logo.scale.setScalar(wide ? 1.55 : 0.85);
+    logo.scale.setScalar(wide ? 1.55 : 0.5);
     logo.position.x = wide ? 4.4 : 0;
-    logo.position.y = (wide ? 0.2 : 4.2) + Math.sin(t * 0.9) * 0.15;
+    logo.position.y = (wide ? 0.2 : 3.1) + Math.sin(t * 0.9) * 0.15;
     logo.rotation.y = Math.sin(t * 0.45) * 0.35 + mx * 0.45;
     logo.rotation.x = Math.sin(t * 0.5) * 0.12 - my * 0.3;
 

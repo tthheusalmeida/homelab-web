@@ -183,7 +183,7 @@
     var seq = Array.prototype.slice.call(document.querySelectorAll("#flow [data-seq]"));
     function play(i) {
       if (i >= seq.length) return;
-      var el = seq[i], last = el.querySelector("[data-last]"), finished = false;
+      var el = seq[i], last = el.querySelector("[data-last]") || el.querySelector(".cell:last-child"), finished = false;
       function finish() {
         if (finished) return;
         finished = true;
@@ -192,7 +192,7 @@
       }
       if (last) last.addEventListener("animationend", function (ev) { if (ev.target === last) finish(); });
       el.classList.add("go");
-      setTimeout(finish, 4500); // reserva, se o navegador não avisar o fim da animação
+      setTimeout(finish, 2200); // reserva, se o navegador não avisar o fim da animação
     }
     play(0);
   }
@@ -201,7 +201,12 @@
   function goToStep(i) {
     var story = document.querySelector("[data-story]");
     var span = story.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: story.offsetTop + span * ((i + 0.5) / 6), behavior: reduced ? "auto" : "smooth" });
+    // Pula direto (sem rolagem suave): a seção é "sticky", então o pulo não aparece na tela, e a rolagem suave
+    // passaria por todos os recursos do caminho, trocando captura, texto e cor várias vezes (a "tremida").
+    var root = document.documentElement;
+    root.style.scrollBehavior = "auto"; // o CSS global tem scroll-behavior: smooth
+    window.scrollTo(0, story.offsetTop + span * ((i + 0.5) / total));
+    root.style.scrollBehavior = "";
   }
   document.querySelectorAll(".story-steps li, .progress-dots i").forEach(function (el) {
     var i = Number(el.getAttribute("data-i"));
@@ -223,7 +228,6 @@
       var p = Math.min(1, y / max);
       ringFg.style.strokeDashoffset = String(100 * (1 - p));
       toTop.classList.toggle("show", y > 40);
-      toTop.classList.toggle("near-end", p > 0.97);
     };
     window.addEventListener("scroll", function () { if (!topTick) { topTick = true; requestAnimationFrame(updateTop); } }, { passive: true });
     window.addEventListener("resize", updateTop);
