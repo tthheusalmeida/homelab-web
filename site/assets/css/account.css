@@ -2,12 +2,16 @@
 body { position: relative; isolation: isolate; min-height: 100svh; display: grid; place-items: center; padding: 32px 16px; overflow-x: hidden; overflow-y: auto; }
 .acc { width: min(560px, 100%); display: grid; gap: 22px; text-align: center; }
 .acc.wide { width: min(900px, 100%); }
-.acc [hidden] { display: none !important; }
+.acc [hidden], .acc-header [hidden] { display: none !important; }
 .btn[disabled] { opacity: 0.55; cursor: not-allowed; }
 
 /* ───────── Estrutura ───────── */
+/* Header igual ao do app desktop: 56px (h-14), rola com a página, borda embaixo e 16px nas laterais. */
+body.has-header { display: block; place-items: normal; padding: 0; }
+.acc-header { position: relative; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.has-header .acc { margin: 0 auto; padding: 32px 16px 56px; width: min(932px, 100%); }
+.acc-userbar span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .acc-brand { display: inline-flex; align-items: center; gap: 10px; justify-content: center; font-weight: 700; font-size: 17px; }
-.acc-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; min-height: 32px; }
 .acc-userbar { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
 .acc-link { background: none; border: 0; padding: 4px 0; font: 600 13px var(--sans); color: var(--text); cursor: pointer; border-bottom: 1px solid var(--line-strong); transition: border-color 0.3s var(--ease), color 0.3s; }
 .acc-link:hover { border-color: var(--accent); color: var(--accent); }
@@ -157,9 +161,21 @@ body::after { bottom: -34vmax; right: -22vmax; animation: accDrift 22s ease-in-o
 }
 @keyframes accPop { 0% { transform: scale(0); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
 
+/* Celular: mesma lógica da landing (empilha, reduz recortes e espaçamentos) */
+@media (max-width: 620px) {
+  .acc-header { padding: 0 12px; }
+  .acc-userbar { gap: 10px; min-width: 0; }
+  .acc-userbar span { max-width: 38vw; }
+  .has-header .acc { padding: 20px 14px 40px; gap: 18px; }
+  .acc-status { --cut: 22px; flex-wrap: wrap; gap: 10px 14px; min-height: 0; padding: 16px calc(var(--cut) + 6px); }
+  .acc-pill { margin-left: 30px; }
+  .plan-body { padding: 22px 20px 26px; }
+  .acc .plan .price { font-size: 28px; }
+  .plan-foot .btn { width: 100%; }
+  .snack-region[data-region="corner"] { left: 16px; align-items: stretch; }
+}
 @media (max-width: 560px) {
-  .acc-status { flex-wrap: wrap; }
-  .acc-pill { margin-left: 32px; }
+  .acc-card { padding: 28px 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
   body::before, body::after, .acc-brand img, .acc-card::before, .acc-dot { animation: none !important; }

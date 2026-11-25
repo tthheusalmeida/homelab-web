@@ -12,15 +12,15 @@
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/assets/css/account.css" />
 </head>
-<body>
+<body class="has-header">
+  <header class="acc-header">
+    <a class="acc-brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
+    <div class="acc-userbar" id="userbar" hidden>
+      <span id="user"></span>
+      <button class="acc-link" id="logout" type="button">Sair</button>
+    </div>
+  </header>
   <main class="acc wide">
-    <header class="acc-top">
-      <a class="acc-brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
-      <div class="acc-userbar" id="userbar" hidden>
-        <span id="user"></span>
-        <button class="acc-link" id="logout" type="button">Sair</button>
-      </div>
-    </header>
 
     <section class="acc-status hx" id="status" data-state="loading" aria-live="polite">
       <span class="acc-dot" aria-hidden="true"></span>
