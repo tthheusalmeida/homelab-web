@@ -1,18 +1,170 @@
-/* Páginas de conta (/entrar e /assinaturas): reaproveitam os tokens e botões hexagonais da landing. */
-body { min-height: 100svh; display: grid; place-items: center; padding: 32px 16px; overflow: auto; }
+/* Páginas de conta (/entrar e /assinaturas): reaproveitam os tokens, botões e planos hexagonais da landing. */
+body { position: relative; isolation: isolate; min-height: 100svh; display: grid; place-items: center; padding: 32px 16px; overflow-x: hidden; overflow-y: auto; }
 .acc { width: min(560px, 100%); display: grid; gap: 22px; text-align: center; }
+.acc.wide { width: min(900px, 100%); }
+.acc [hidden] { display: none !important; }
+.btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+
+/* ───────── Estrutura ───────── */
 .acc-brand { display: inline-flex; align-items: center; gap: 10px; justify-content: center; font-weight: 700; font-size: 17px; }
+.acc-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; min-height: 32px; }
+.acc-userbar { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
+.acc-link { background: none; border: 0; padding: 4px 0; font: 600 13px var(--sans); color: var(--text); cursor: pointer; border-bottom: 1px solid var(--line-strong); transition: border-color 0.3s var(--ease), color 0.3s; }
+.acc-link:hover { border-color: var(--accent); color: var(--accent); }
 .acc-card { padding: 34px 28px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; display: grid; gap: 14px; }
 .acc-card h1 { font-size: clamp(22px, 5vw, 28px); line-height: 1.2; }
 .acc-card p { color: var(--muted); }
-.acc-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 6px; }
+.acc-card #subtitle { min-height: calc(1.55em * 2); } /* reserva 2 linhas: o texto muda sem mexer na altura */
+.acc-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; align-items: center; margin-top: 6px; min-height: 44px; }
 .acc-note { font-size: 12.5px; color: var(--muted); }
-.acc-plan { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface-2); }
-.acc-plan strong { font-size: 18px; }
-.acc-price { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; }
-.acc-price small { font-size: 14px; font-weight: 500; color: var(--muted); }
-.acc-user { font-size: 13px; color: var(--muted); }
-.acc-msg { padding: 10px 14px; border-radius: 10px; font-size: 14px; background: var(--accent-soft); color: var(--text); }
-.acc-msg.error { background: rgba(244, 63, 94, 0.14); }
-.acc [hidden] { display: none !important; }
-.btn[disabled] { opacity: 0.55; cursor: not-allowed; }
+.acc-eyebrow { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+.acc-eyebrow .cursor { margin-left: 2px; }
+
+/* ───────── Alerta (erro / aviso): o espaço é sempre reservado, então a página não "pula" ───────── */
+.acc-slot { display: grid; min-height: 76px; }
+.acc-slot > * { grid-area: 1 / 1; }
+.acc-alert {
+  --tone: #f43f5e;
+  display: flex; align-items: center; gap: 14px; text-align: left; padding: 12px 18px;
+  border: 1px solid color-mix(in srgb, var(--tone) 50%, transparent); border-radius: 14px;
+  background: color-mix(in srgb, var(--tone) 11%, var(--surface));
+  color: var(--text); font-size: 14px; line-height: 1.45;
+}
+.acc-alert.info { --tone: var(--accent); }
+.acc .acc-alert[hidden] { display: flex !important; visibility: hidden; opacity: 0; }
+.acc-alert:not([hidden]) { animation: accMsg 0.45s var(--ease) both; }
+.acc-alert.error:not([hidden]) { animation: accMsg 0.45s var(--ease) both, accShake 0.5s 0.1s ease-in-out; }
+.acc-alert-ico {
+  flex: none; display: grid; place-items: center; width: 32px; height: 36px;
+  background: var(--tone); color: #fff; font: 800 15px var(--mono); clip-path: var(--hex);
+}
+.acc-alert.info .acc-alert-ico { color: var(--accent-ink); }
+.acc-alert strong { display: block; font-size: 14px; }
+.acc-alert span { color: var(--muted); }
+
+/* ───────── Snackbar (porte do snackbar do app desktop): aviso flutuante no rodapé ───────── */
+#snack { --snack-success: #10b981; --snack-error: oklch(57.7% 0.245 27.325); --snack-brand: var(--accent); }
+:root[data-theme="dark"] #snack { --snack-error: oklch(70.4% 0.191 22.216); }
+.snack-region { position: fixed; z-index: 70; display: flex; flex-direction: column; pointer-events: none; bottom: 16px; }
+.snack-region[data-region="corner"] { right: 16px; align-items: flex-end; }
+.snack-region[data-region="center"] { left: 0; right: 0; align-items: center; gap: 8px; padding: 0 16px; }
+.snack {
+  --tone: var(--snack-success);
+  position: relative; display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 2rem); overflow: hidden; pointer-events: auto;
+  padding: 12px 16px; border: 1px solid var(--line); border-radius: 0.5rem; background: var(--surface); color: var(--text);
+  font-size: 14px; line-height: 1.43; text-align: left;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.18), 0 4px 6px -4px rgba(0, 0, 0, 0.18);
+  animation: snackEnter 0.45s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+.snack[data-kind="error"] { --tone: var(--snack-error); }
+.snack[data-kind="info"] { --tone: var(--snack-brand); }
+.snack.leaving { animation: snackExit 0.24s cubic-bezier(0.4, 0, 1, 1) both; }
+.snack-ico { flex: none; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.snack > .snack-ico { color: var(--tone); }
+.snack-text { min-width: 0; }
+.snack-action { flex: none; padding: 4px 8px; border: 0; border-radius: 6px; background: none; color: var(--accent); font: 500 12px/16px var(--sans); cursor: pointer; transition: background 0.2s; }
+.snack-action:hover { background: color-mix(in srgb, var(--text) 9%, transparent); }
+.snack-close { flex: none; display: grid; place-items: center; padding: 0; border: 0; background: none; color: var(--muted); cursor: pointer; transition: color 0.2s; }
+.snack-close:hover { color: var(--text); }
+.snack-action:focus-visible, .snack-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.snack-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--tone); transform-origin: left; animation: snackCountdown 3s linear both; }
+@keyframes snackEnter { 0% { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes snackExit { 0% { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(14px); } }
+@keyframes snackCountdown { 0% { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* ───────── Status do plano (/assinaturas) ───────── */
+/* Faixa hexagonal (classe .hx da landing). A cor da borda vem de --st-line, também no hover. */
+.acc-status {
+  --tone: var(--muted);
+  --cut: 34px;
+  --hx-fill: var(--surface);
+  display: flex; align-items: center; gap: 16px; text-align: left; min-height: 92px; padding: 18px calc(var(--cut) + 8px);
+}
+.acc-status.hx, .acc-status.hx:hover { --hx-line: var(--st-line, var(--line)); }
+.acc-status[data-state="pro"] { --tone: var(--accent); --st-line: color-mix(in srgb, var(--accent) 60%, transparent); --hx-fill: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
+.acc-status[data-state="trial"], .acc-status[data-state="cancel"] { --tone: #f5b942; --st-line: color-mix(in srgb, #f5b942 55%, transparent); --hx-fill: color-mix(in srgb, #f5b942 6%, var(--surface)); }
+.acc-dot { flex: none; width: 16px; height: 18px; background: var(--tone); clip-path: var(--hex); transition: background 0.5s var(--ease); }
+.acc-status[data-state="pro"] .acc-dot, .acc-status[data-state="loading"] .acc-dot { animation: accPulse 2.2s ease-in-out infinite; }
+.acc-status-text { display: grid; gap: 2px; min-width: 0; }
+.acc-status-text strong { font-size: 18px; line-height: 1.25; }
+.acc-status-text span:last-child { color: var(--muted); font-size: 13.5px; min-height: 1.45em; }
+.acc-pill {
+  margin-left: auto; flex: none; min-width: 92px; text-align: center; padding: 5px 16px;
+  background: var(--tone); color: #0b0c0e; font: 700 10.5px var(--mono); letter-spacing: 0.1em;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%);
+}
+.acc-status[data-state="expired"] .acc-pill, .acc-status[data-state="loading"] .acc-pill { background: var(--line-strong); color: var(--text); }
+@keyframes accPulse { 50% { opacity: 0.45; transform: scale(0.85); } }
+
+/* ───────── Planos ───────── */
+.acc .plans { max-width: none; margin: 0; text-align: left; align-items: stretch; }
+.acc .plan { height: 100%; }
+.acc .plan .price { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.acc .plan .price small { font-size: 14px; font-weight: 500; color: var(--muted); }
+.acc .plan .badge[hidden] { display: none; }
+.plan-foot { margin-top: auto; display: flex; align-items: center; min-height: 44px; }
+.plan-foot .btn { align-self: auto; }
+
+/* ───────── Movimento (mesmo vocabulário da landing: brilho ciano, cursor de terminal, curva --ease) ───────── */
+body::before, body::after {
+  content: ""; position: fixed; z-index: -1; width: 60vmax; height: 60vmax; border-radius: 50%;
+  background: radial-gradient(circle, var(--glow), transparent 62%); filter: blur(30px); pointer-events: none; opacity: 0.45;
+}
+body::before { top: -30vmax; left: -20vmax; animation: accDrift 18s ease-in-out infinite alternate; }
+body::after { bottom: -34vmax; right: -22vmax; animation: accDrift 22s ease-in-out infinite alternate-reverse; }
+@keyframes accDrift { to { transform: translate3d(6vmax, 4vmax, 0) scale(1.12); opacity: 0.3; } }
+
+.acc-brand img { animation: bob 4.5s ease-in-out infinite; }
+.acc > *, .acc-card > * { animation: accUp 0.9s var(--ease) both; }
+.acc > :nth-child(2) { animation-delay: 0.08s; }
+.acc > :nth-child(3) { animation-delay: 0.16s; }
+.acc > :nth-child(4) { animation-delay: 0.24s; }
+.acc > :nth-child(5) { animation-delay: 0.32s; }
+.acc-card > :nth-child(1) { animation-delay: 0.20s; }
+.acc-card > :nth-child(2) { animation-delay: 0.28s; }
+.acc-card > :nth-child(3) { animation-delay: 0.36s; }
+.acc-card > :nth-child(4) { animation-delay: 0.44s; }
+.acc-card > :nth-child(5) { animation-delay: 0.52s; }
+.acc-card > :nth-child(6) { animation-delay: 0.60s; }
+.acc-card { position: relative; overflow: hidden; transition: border-color 0.4s var(--ease), box-shadow 0.4s var(--ease); }
+.acc-card:hover { border-color: var(--line-strong); box-shadow: 0 18px 60px -28px var(--glow); }
+/* faixa de luz que varre o topo do card */
+.acc-card::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform: translateX(-100%); animation: accSweep 4.5s var(--ease) 0.9s infinite;
+}
+@keyframes accUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes accSweep { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(100%); } }
+@keyframes accMsg { from { opacity: 0; transform: translateY(-8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes accShake { 20%, 60% { translate: -5px 0; } 40%, 80% { translate: 5px 0; } }
+
+/* botões: leve elevação e estado "carregando" */
+.acc-actions .btn { transition: transform 0.3s var(--ease), opacity 0.3s var(--ease); }
+.acc-actions .btn:active:not([disabled]) { transform: translateY(0) scale(0.98); }
+.btn.loading { position: relative; pointer-events: none; }
+.btn.loading::after {
+  content: ""; display: inline-block; width: 14px; height: 14px; margin-left: 10px;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: accSpin 0.7s linear infinite;
+}
+@keyframes accSpin { to { transform: rotate(360deg); } }
+
+/* sucesso: o título ganha um check que "estoura" */
+.acc-card.done h1::before {
+  content: "✓"; display: inline-grid; place-items: center; width: 34px; height: 34px; margin-right: 10px; vertical-align: 2px;
+  border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 18px;
+  animation: accPop 0.6s var(--ease) both;
+}
+@keyframes accPop { 0% { transform: scale(0); } 70% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+@media (max-width: 560px) {
+  .acc-status { flex-wrap: wrap; }
+  .acc-pill { margin-left: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .acc-brand img, .acc-card::before, .acc-dot { animation: none !important; }
+  .snack, .snack.leaving { animation: none; }
+  .snack-bar { animation-name: none; }
+  .acc > *, .acc-card > *, .acc-alert:not([hidden]), .acc-alert.error:not([hidden]) { animation: none !important; }
+  .acc-actions .btn { transition: none; }
+}

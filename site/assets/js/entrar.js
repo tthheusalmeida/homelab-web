@@ -9,8 +9,8 @@ const appFlowValid = fromApp && Number.isInteger(port) && port >= 1024 && port <
 const NEXT = { assinaturas: "/assinaturas/" };
 const next = NEXT[params.get("next")] || null;
 
-function fail(message) { setText("error", message); show("error", true); show("info", false); }
-function info(message) { setText("info", message); show("info", true); show("error", false); }
+function fail(message) { setText("error-text", message); show("error", true); show("info", false); }
+function info(message) { setText("info-text", message); show("info", true); show("error", false); }
 
 function backToApp(user) {
   // O refresh token vai só para 127.0.0.1 (este computador) e o app confere o "state" que ele mesmo gerou.
@@ -20,19 +20,31 @@ function backToApp(user) {
   location.replace(url);
 }
 
+const loginLabel = document.getElementById("login").textContent;
+function setBusy(busy) {
+  const btn = document.getElementById("login");
+  btn.disabled = busy;
+  btn.classList.toggle("loading", busy);
+  btn.textContent = busy ? "Entrando…" : loginLabel;
+}
+
 async function afterLogin(user) {
-  show("login", false);
+  // O botão continua no lugar (só fica "carregando") até a resposta chegar: o card não muda de altura.
+  setBusy(true);
   try {
     await api("/me"); // o primeiro acesso cria o registro e inicia o trial (no servidor)
   } catch (e) {
     fail("Não foi possível confirmar sua conta agora. Tente de novo em instantes.");
-    show("login", true);
+    setBusy(false);
     return;
   }
   if (appFlowValid) return backToApp(user);
   if (next) return location.replace(next);
+  document.querySelector(".acc-card").classList.add("done");
+  setText("eyebrow", "root@homelab:~$ sessão iniciada");
   setText("title", "Você está logado");
   setText("subtitle", user.email || "");
+  show("login", false);
   show("continue", true);
 }
 
@@ -41,11 +53,15 @@ if (!configured) fail("Login ainda não configurado neste ambiente.");
 
 if (configured) {
   onUser((user) => { if (user) afterLogin(user); });
-  document.getElementById("login").addEventListener("click", async () => {
+  const loginBtn = document.getElementById("login");
+  loginBtn.addEventListener("click", async () => {
     show("error", false);
+    loginBtn.classList.add("loading");
     try { await loginWithGoogle(); } catch (e) {
       if (e && e.code === "auth/popup-blocked") fail("O navegador bloqueou a janela de login. Permita pop-ups para este site e tente de novo.");
       else if (e && e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request") fail("Não foi possível entrar com o Google. Tente de novo.");
+    } finally {
+      if (!loginBtn.disabled) loginBtn.classList.remove("loading"); // se o /me já está em andamento, o spinner continua
     }
   });
 }

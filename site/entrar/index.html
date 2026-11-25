@@ -16,16 +16,25 @@
   <main class="acc">
     <a class="acc-brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
     <section class="acc-card">
+      <p class="acc-eyebrow" id="eyebrow">root@homelab:~$ login<span class="cursor"></span></p>
       <h1 id="title">Entrar no HomeLab</h1>
       <p id="subtitle">Use sua conta Google. O teste grátis de 7 dias começa no seu primeiro acesso.</p>
-      <p class="acc-msg error" id="error" hidden></p>
-      <p class="acc-msg" id="info" hidden></p>
       <div class="acc-actions">
         <button class="btn hx btn-primary" id="login" type="button">Entrar com Google</button>
         <a class="btn hx" id="continue" href="/assinaturas/" hidden>Ver minha assinatura</a>
       </div>
       <p class="acc-note">Só pedimos seu nome, e-mail e foto. Seus resumos e arquivos ficam no seu computador.</p>
     </section>
+    <div class="acc-slot" aria-live="polite">
+      <div class="acc-alert error" id="error" role="alert" hidden>
+        <span class="acc-alert-ico" aria-hidden="true">!</span>
+        <div><strong>Algo deu errado</strong><span id="error-text"></span></div>
+      </div>
+      <div class="acc-alert info" id="info" hidden>
+        <span class="acc-alert-ico" aria-hidden="true">i</span>
+        <div><span id="info-text"></span></div>
+      </div>
+    </div>
   </main>
   <script type="module" src="/assets/js/entrar.js"></script>
 </body>
