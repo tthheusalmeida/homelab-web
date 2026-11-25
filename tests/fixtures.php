@@ -44,7 +44,7 @@ function firebaseToken(string $email = 'ana@example.com', array $override = []):
     $claims = $override + [
         'iss' => 'https://securetoken.google.com/' . PROJECT,
         'aud' => PROJECT,
-        'sub' => 'uid-' . $email,
+        'sub' => 'uid' . substr(hash('sha256', $email), 0, 24),
         'iat' => NOW - 10,
         'exp' => NOW + 3600,
         'email' => $email,
@@ -86,7 +86,7 @@ function authed(string $method, string $path, string $email = 'ana@example.com',
 
 function userKey(string $email = 'ana@example.com'): string
 {
-    return UserRepository::keyFor($email);
+    return 'uid' . substr(hash('sha256', $email), 0, 24);
 }
 
 /** Webhook com assinatura válida do Stripe. @param array<string,mixed> $event */

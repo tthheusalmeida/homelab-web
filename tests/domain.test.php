@@ -118,8 +118,11 @@ test('when the signed token is expired, should fail verification', function () {
     eq(null, Signer::verify($t, $k['publicKey'], NOW));
 });
 
-test('when the e-mail differs only by case or spaces, should map to the same user key', function () {
-    eq(UserRepository::keyFor('Ana@Example.com '), UserRepository::keyFor('ana@example.com'));
+test('when the key is not a plain Firebase uid, should refuse it', function () {
+    eq(true, UserRepository::isKey('AbC123xyz'));
+    eq(false, UserRepository::isKey('../../users/x'));
+    eq(false, UserRepository::isKey('u_abc'));
+    eq(false, UserRepository::isKey(''));
 });
 test('when the user already exists, should keep the original trial start', function () {
     $repo = new UserRepository(new MemoryStore());
@@ -127,10 +130,10 @@ test('when the user already exists, should keep the original trial start', funct
     $repo->ensure($id, NOW);
     eq(NOW, $repo->ensure($id, NOW + 5 * 86400)['trialStartedAt']);
 });
-test('when the same e-mail logs in with a new account id, should not renew the trial', function () {
-    $repo = new UserRepository(new MemoryStore());
-    $repo->ensure(['uid' => 'u1', 'email' => 'ana@example.com'], NOW);
-    eq(NOW, $repo->ensure(['uid' => 'u2-nova', 'email' => 'ana@example.com'], NOW + 3 * 86400)['trialStartedAt']);
+test('when a user is created, should store the record under the Firebase uid', function () {
+    $store = new MemoryStore();
+    (new UserRepository($store))->ensure(['uid' => 'u1', 'email' => 'ana@example.com'], NOW);
+    eq(NOW, $store->get('users/u1')['data']['trialStartedAt']);
 });
 test('when consuming past the daily limit, should refuse', function () {
     $repo = new UsageQuota(new MemoryStore());
@@ -153,8 +156,8 @@ test('when limits are per feature, should not share quota between features', fun
 test('when a subscription event is older than the saved one, should ignore it', function () {
     $store = new MemoryStore();
     $repo = new UserRepository($store);
-    $repo->ensure(['uid' => 'u', 'email' => 'ana@example.com'], NOW);
     $k = userKey();
+    $repo->ensure(['uid' => $k, 'email' => 'ana@example.com'], NOW);
     $new = ['id' => 's', 'status' => 'active', 'priceId' => 'p', 'currentPeriodEnd' => NOW + 100, 'cancelAtPeriodEnd' => false];
     $subs = new SubscriptionRepository($store);
     $subs->applySubscription($k, $new, NOW + 50);

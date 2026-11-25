@@ -23,7 +23,7 @@ final class PortalRoute implements Route
 
     public function handle(Request $request, ?array $identity, int $now): Response
     {
-        $user = $this->users->find(UserRepository::keyFor($identity['email']));
+        $user = $this->users->find($identity['uid']);
         $customer = $user['stripeCustomerId'] ?? null;
         if (!is_string($customer)) {
             return new Response(404, ['error' => 'no_subscription']);

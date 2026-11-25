@@ -51,6 +51,9 @@ test('when the e-mail is not verified, should reject the login', function () use
 test('when the provider is not Google, should reject the login', function () use ($auth) {
     throws(AuthException::class, fn () => $auth()->verify(firebaseToken('a@b.c', ['firebase' => ['sign_in_provider' => 'password']]), NOW));
 });
+test('when the token subject is not a plain uid, should reject the login', function () use ($auth) {
+    throws(AuthException::class, fn () => $auth()->verify(firebaseToken('a@b.c', ['sub' => '../users/x']), NOW));
+});
 test('when the login is a verified Google account, should normalize the e-mail', function () use ($auth) {
     eq('ana@example.com', $auth()->verify(firebaseToken('Ana@Example.com'), NOW)['email']);
 });

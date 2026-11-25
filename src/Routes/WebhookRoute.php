@@ -81,6 +81,6 @@ final class WebhookRoute implements Route
 
     private function isUserKey(string $key): bool
     {
-        return preg_match('/^u_[a-f0-9]{64}$/', $key) === 1;
+        return UserRepository::isKey($key);
     }
 }

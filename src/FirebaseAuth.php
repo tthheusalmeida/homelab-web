@@ -31,7 +31,11 @@ final class FirebaseAuth
         if (!is_string($email) || ($claims['email_verified'] ?? false) !== true || $provider !== 'google.com') {
             throw new AuthException('email not verified by Google');
         }
-        return ['uid' => (string) $claims['sub'], 'email' => strtolower($email)];
+        $uid = $claims['sub'] ?? null;
+        if (!is_string($uid) || !UserRepository::isKey($uid)) {
+            throw new AuthException('invalid uid');
+        }
+        return ['uid' => $uid, 'email' => strtolower($email)];
     }
 
     /** @return array<string,string> */

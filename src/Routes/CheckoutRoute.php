@@ -34,7 +34,7 @@ final class CheckoutRoute implements Route
         if ($this->entitlement->compute($user, $now)['plan'] === 'pro') {
             return new Response(409, ['error' => 'already_pro']);
         }
-        $key = UserRepository::keyFor($identity['email']);
+        $key = $identity['uid'];
         $params = [
             'mode' => 'subscription',
             'line_items' => [['price' => $this->plans->activePriceId(), 'quantity' => 1]],

@@ -17,7 +17,7 @@ Mesmo domínio do site, sem CORS. Rotas autenticadas exigem `Authorization: Bear
 - **Expirado:** sem permissões de gerar (o app continua abrindo o que já existe, localmente).
 
 ## Dados no Firestore (só o servidor lê e grava)
-- `users/{u_<sha256 do e-mail>}`: e-mail, `trialStartedAt`, `stripeCustomerId`, `subscription` (`status`, `priceId`, `currentPeriodEnd`, `cancelAtPeriodEnd`, `eventCreated`).
+- `users/{uid do Firebase}`: e-mail, `trialStartedAt`, `stripeCustomerId`, `subscription` (`status`, `priceId`, `currentPeriodEnd`, `cancelAtPeriodEnd`, `eventCreated`).
 - `usage/{chave}_{AAAAMMDD}`: contadores do dia (fuso de São Paulo).
 - `stripeCustomers/{cus_...}`: aponta para o usuário.
 

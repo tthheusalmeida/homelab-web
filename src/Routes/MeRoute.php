@@ -32,7 +32,7 @@ final class MeRoute implements Route
     public function handle(Request $request, ?array $identity, int $now): Response
     {
         $user = $this->users->ensure($identity, $now);
-        $key = UserRepository::keyFor($identity['email']);
+        $key = $identity['uid'];
         $ent = $this->entitlement->compute($user, $now);
         $used = $this->quota->usageToday($key, $now);
 

@@ -34,7 +34,7 @@ final class UsageRoute implements Route
         if ($ent['plan'] === 'expired') {
             return new Response(403, ['error' => 'plan_expired']);
         }
-        $result = $this->quota->consume(UserRepository::keyFor($identity['email']), $feature, $this->plans->dailyLimit($ent['plan'], $feature), $now);
+        $result = $this->quota->consume($identity['uid'], $feature, $this->plans->dailyLimit($ent['plan'], $feature), $now);
         return new Response($result['allowed'] ? 200 : 429, $result['allowed'] ? $result : ['error' => 'quota_exceeded'] + $result);
     }
 }
