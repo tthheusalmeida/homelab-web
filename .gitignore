@@ -2,5 +2,9 @@
 node_modules/
 *.log
 config.php
-*.service-account.json
 .env
+.env.*
+!.env.example
+private-dev/
+*.service-account.json
+serviceAccount*.json

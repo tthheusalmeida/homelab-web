@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Assinatura — HomeLab</title>
+  <link rel="icon" href="/assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="/assets/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/assets/css/account.css" />
+</head>
+<body>
+  <main class="acc">
+    <a class="acc-brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
+
+    <section class="acc-card" id="loading"><p>Carregando…</p></section>
+
+    <section class="acc-card" id="signed-out" hidden>
+      <h1>Sua assinatura</h1>
+      <p>Entre com sua conta Google para ver seu plano e assinar o Pro.</p>
+      <div class="acc-actions"><a class="btn hx btn-primary" href="/entrar/?next=assinaturas">Entrar com Google</a></div>
+    </section>
+
+    <section class="acc-card" id="signed-in" hidden>
+      <h1>Sua assinatura</h1>
+      <p class="acc-user" id="user"></p>
+      <p class="acc-msg error" id="error" hidden></p>
+      <p class="acc-msg" id="info" hidden></p>
+
+      <div class="acc-plan">
+        <span class="acc-note">Plano atual</span>
+        <strong id="plan-name"></strong>
+        <span id="plan-detail"></span>
+      </div>
+
+      <div class="acc-plan" id="pro-card">
+        <strong>HomeLab Pro</strong>
+        <span class="acc-price"><span id="price">—</span> <small>/ mês</small></span>
+        <span class="acc-note">Biblioteca de livros, conversa com a IA e todos os recursos sem limite diário. Cancele quando quiser.</span>
+      </div>
+
+      <div class="acc-actions">
+        <button class="btn hx btn-primary" id="subscribe" type="button">Assinar o Pro</button>
+        <button class="btn hx" id="manage" type="button" hidden>Gerenciar assinatura</button>
+        <button class="btn hx" id="logout" type="button">Sair</button>
+      </div>
+      <p class="acc-note">Pagamento seguro pelo Stripe. Os dados do cartão nunca passam pelo HomeLab.</p>
+    </section>
+  </main>
+  <script type="module" src="/assets/js/assinaturas.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+# Deploy MANUAL (workflow_dispatch) até existir domínio e hospedagem configurados.
+# Segredos: só como secrets/variables do ambiente "production" no GitHub. Nada disso entra no repositório.
+# Antes de ativar: proteja o ambiente (só a branch main + aprovação obrigatória) e troque @v4 por SHA fixo.
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      prune:
+        description: "Apagar no servidor arquivos que não existem mais no repositório (cuidado no 1º deploy)"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    environment: production
+    env:
+      SSH_PORT: ${{ vars.SSH_PORT }}
+      SSH_USER: ${{ vars.SSH_USER }}
+      SSH_HOST: ${{ vars.SSH_HOST }}
+      REMOTE_ROOT: ${{ vars.REMOTE_ROOT }}   # ex.: /home/u123456789/domains/seudominio.com
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests (o deploy só segue se passarem)
+        run: php tests/run.php
+      - name: Gerar config.php a partir dos secrets
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          STRIPE_PRO_PRICE_ACTIVE: ${{ vars.STRIPE_PRO_PRICE_ACTIVE }}
+          STRIPE_PRO_PRICES_ACCEPTED: ${{ vars.STRIPE_PRO_PRICES_ACCEPTED }}
+          FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          SIGNING_SECRET_KEY: ${{ secrets.SIGNING_SECRET_KEY }}
+        run: php tools/build-config.php "$RUNNER_TEMP/config.php"
+      - name: Preparar SSH (chave de deploy e host conferido)
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Enviar por SFTP/SSH
+        run: |
+          SSH="ssh -p $SSH_PORT -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes"
+          DEL=""; if [ "${{ inputs.prune }}" = "true" ]; then DEL="--delete"; fi
+          REMOTE="$SSH_USER@$SSH_HOST"
+          $SSH "$REMOTE" "mkdir -p '$REMOTE_ROOT/private' '$REMOTE_ROOT/public_html/api' && chmod 700 '$REMOTE_ROOT/private'"
+          # site (público). A pasta api/ tem envio próprio, então fica de fora aqui.
+          rsync -az $DEL --exclude='/api/' --exclude='.well-known/' -e "$SSH" site/ "$REMOTE:$REMOTE_ROOT/public_html/"
+          rsync -az $DEL -e "$SSH" api/ "$REMOTE:$REMOTE_ROOT/public_html/api/"
+          # código e configuração FORA de public_html
+          rsync -az --delete -e "$SSH" src/ "$REMOTE:$REMOTE_ROOT/private/src/"
+          rsync -az --chmod=F600 -e "$SSH" "$RUNNER_TEMP/config.php" "$REMOTE:$REMOTE_ROOT/private/config.php"
+      - name: Limpar o runner
+        if: always()
+        run: rm -f "$RUNNER_TEMP/config.php" ~/.ssh/deploy_key

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Entrar — HomeLab</title>
+  <link rel="icon" href="/assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="/assets/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/assets/css/account.css" />
+</head>
+<body>
+  <main class="acc">
+    <a class="acc-brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
+    <section class="acc-card">
+      <h1 id="title">Entrar no HomeLab</h1>
+      <p id="subtitle">Use sua conta Google. O teste grátis de 7 dias começa no seu primeiro acesso.</p>
+      <p class="acc-msg error" id="error" hidden></p>
+      <p class="acc-msg" id="info" hidden></p>
+      <div class="acc-actions">
+        <button class="btn hx btn-primary" id="login" type="button">Entrar com Google</button>
+        <a class="btn hx" id="continue" href="/assinaturas/" hidden>Ver minha assinatura</a>
+      </div>
+      <p class="acc-note">Só pedimos seu nome, e-mail e foto. Seus resumos e arquivos ficam no seu computador.</p>
+    </section>
+  </main>
+  <script type="module" src="/assets/js/entrar.js"></script>
+</body>
+</html>

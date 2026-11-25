@@ -231,13 +231,16 @@
     updateTop();
   }
 
-  /* ───── Entrar com Google (ainda sem login real) ───── */
-  var login = document.getElementById("google-login");
-  if (login) {
-    login.addEventListener("click", function (e) {
-      e.preventDefault();
-      // TODO: ligar ao Firebase Authentication (Google) na fase de login.
-      window.alert("O login com Google será ativado em breve.");
-    });
+  /* ───── Preço do Pro: vem do servidor (que lê do Stripe); se a API não responder, fica o texto do HTML ───── */
+  var priceEl = document.querySelector("[data-pro-price]");
+  if (priceEl && window.fetch && location.protocol.indexOf("http") === 0) {
+    fetch("/api/plans", { headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (p) {
+        if (p && p.pro && p.pro.amount > 0) {
+          priceEl.textContent = (p.pro.amount / 100).toLocaleString("pt-BR", { style: "currency", currency: String(p.pro.currency).toUpperCase() });
+        }
+      })
+      .catch(function () {});
   }
 })();
