@@ -9,6 +9,7 @@ use Homelab\Request;
 use Homelab\Response;
 use Homelab\Route;
 use Homelab\Signer;
+use Homelab\UsageQuota;
 use Homelab\UserRepository;
 
 /** Primeiro acesso cria o registro (e inicia o trial). Devolve o plano e a cota do dia, assinados. */
@@ -16,6 +17,7 @@ final class MeRoute implements Route
 {
     public function __construct(
         private UserRepository $users,
+        private UsageQuota $quota,
         private Entitlement $entitlement,
         private Plans $plans,
         private Signer $signer,
@@ -32,7 +34,7 @@ final class MeRoute implements Route
         $user = $this->users->ensure($identity, $now);
         $key = UserRepository::keyFor($identity['email']);
         $ent = $this->entitlement->compute($user, $now);
-        $used = $this->users->usageToday($key, $now);
+        $used = $this->quota->usageToday($key, $now);
 
         $quotas = [];
         foreach (Plans::DAILY_FEATURES as $feature) {

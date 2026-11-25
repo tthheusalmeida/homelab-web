@@ -8,12 +8,13 @@ use Homelab\Plans;
 use Homelab\Request;
 use Homelab\Response;
 use Homelab\Route;
+use Homelab\UsageQuota;
 use Homelab\UserRepository;
 
 /** Consome 1 da cota diária de um recurso. Contada no servidor: gerar com limite exige internet. */
 final class UsageRoute implements Route
 {
-    public function __construct(private UserRepository $users, private Entitlement $entitlement, private Plans $plans)
+    public function __construct(private UserRepository $users, private UsageQuota $quota, private Entitlement $entitlement, private Plans $plans)
     {
     }
 
@@ -33,7 +34,7 @@ final class UsageRoute implements Route
         if ($ent['plan'] === 'expired') {
             return new Response(403, ['error' => 'plan_expired']);
         }
-        $result = $this->users->consume(UserRepository::keyFor($identity['email']), $feature, $this->plans->dailyLimit($ent['plan'], $feature), $now);
+        $result = $this->quota->consume(UserRepository::keyFor($identity['email']), $feature, $this->plans->dailyLimit($ent['plan'], $feature), $now);
         return new Response($result['allowed'] ? 200 : 429, $result['allowed'] ? $result : ['error' => 'quota_exceeded'] + $result);
     }
 }

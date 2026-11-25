@@ -8,13 +8,14 @@ use Homelab\Logger;
 use Homelab\Request;
 use Homelab\Response;
 use Homelab\Route;
-use Homelab\Stripe;
+use Homelab\SubscriptionRepository;
 use Homelab\UserRepository;
+use Homelab\WebhookVerifier;
 
 /** O Stripe avisa aqui que a assinatura mudou. Só vale com a assinatura do Stripe conferida. */
 final class WebhookRoute implements Route
 {
-    public function __construct(private UserRepository $users, private string $webhookSecret, private Logger $log)
+    public function __construct(private UserRepository $users, private SubscriptionRepository $subscriptions, private WebhookVerifier $verifier, private Logger $log)
     {
     }
 
@@ -26,7 +27,7 @@ final class WebhookRoute implements Route
     public function handle(Request $request, ?array $identity, int $now): Response
     {
         try {
-            $event = Stripe::verifyWebhook($request->body, $request->headers['stripe-signature'] ?? '', $this->webhookSecret, $now);
+            $event = $this->verifier->verify($request->body, $request->headers['stripe-signature'] ?? '', $now);
         } catch (AuthException) {
             return new Response(400, ['error' => 'invalid_signature']);
         }
@@ -46,7 +47,7 @@ final class WebhookRoute implements Route
         $key = $session['client_reference_id'] ?? null;
         $customer = $session['customer'] ?? null;
         if (is_string($key) && is_string($customer) && $this->isUserKey($key) && $this->users->find($key) !== null) {
-            $this->users->linkCustomer($key, $customer);
+            $this->subscriptions->linkCustomer($key, $customer);
         }
     }
 
@@ -54,7 +55,7 @@ final class WebhookRoute implements Route
     private function onSubscription(array $sub, int $created): void
     {
         $customer = is_string($sub['customer'] ?? null) ? $sub['customer'] : null;
-        $key = $sub['metadata']['userKey'] ?? ($customer !== null ? $this->users->keyForCustomer($customer) : null);
+        $key = $sub['metadata']['userKey'] ?? ($customer !== null ? $this->subscriptions->keyForCustomer($customer) : null);
         if (!is_string($key) || !$this->isUserKey($key) || $this->users->find($key) === null) {
             $this->log->error('webhook: subscription without a known user');
             return;
@@ -67,9 +68,9 @@ final class WebhookRoute implements Route
             return;
         }
         if ($customer !== null) {
-            $this->users->linkCustomer($key, $customer);
+            $this->subscriptions->linkCustomer($key, $customer);
         }
-        $this->users->applySubscription($key, [
+        $this->subscriptions->applySubscription($key, [
             'id' => $sub['id'],
             'status' => (string) ($sub['status'] ?? 'canceled'),
             'priceId' => $priceId,

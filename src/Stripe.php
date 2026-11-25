@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Homelab;
 
-/** Cliente mínimo do Stripe (chave restrita) e conferência da assinatura do webhook. */
+/** Cliente mínimo do Stripe (chave restrita). */
 final class Stripe
 {
     private const API = 'https://api.stripe.com/v1';
@@ -42,40 +42,5 @@ final class Stripe
             throw new \RuntimeException('stripe error ' . $res['status']);
         }
         return $body;
-    }
-
-    /**
-     * Confere o cabeçalho Stripe-Signature (HMAC-SHA256 do "tempo.corpo") com tolerância de tempo.
-     * @return array<string,mixed> evento
-     */
-    public static function verifyWebhook(string $payload, string $header, string $secret, int $now, int $tolerance = 300): array
-    {
-        $timestamp = null;
-        $signatures = [];
-        foreach (explode(',', $header) as $item) {
-            $pair = explode('=', trim($item), 2);
-            if (count($pair) !== 2) {
-                continue;
-            }
-            if ($pair[0] === 't') {
-                $timestamp = (int) $pair[1];
-            } elseif ($pair[0] === 'v1') {
-                $signatures[] = $pair[1];
-            }
-        }
-        if ($timestamp === null || $signatures === [] || abs($now - $timestamp) > $tolerance) {
-            throw new AuthException('bad signature header');
-        }
-        $expected = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
-        foreach ($signatures as $candidate) {
-            if (hash_equals($expected, $candidate)) {
-                $event = json_decode($payload, true);
-                if (!is_array($event) || !is_string($event['type'] ?? null)) {
-                    throw new AuthException('bad payload');
-                }
-                return $event;
-            }
-        }
-        throw new AuthException('signature mismatch');
     }
 }

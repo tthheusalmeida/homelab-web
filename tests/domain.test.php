@@ -10,7 +10,10 @@ use Homelab\Signer;
 use Homelab\Store\FirestoreStore;
 use Homelab\Store\MemoryStore;
 use Homelab\Stripe;
+use Homelab\SubscriptionRepository;
+use Homelab\UsageQuota;
 use Homelab\UserRepository;
+use Homelab\WebhookVerifier;
 
 $plans = new Plans(new Config(['stripe' => ['proPriceActive' => PRICE_NEW, 'proPricesAccepted' => [PRICE_OLD]]]));
 $ent = new Entitlement($plans);
@@ -72,24 +75,24 @@ test('when the feature is unknown, should refuse a daily limit', function () use
 test('when verifying a Stripe webhook with the right secret, should return the event', function () {
     $p = '{"type":"x.y"}';
     $sig = hash_hmac('sha256', NOW . '.' . $p, 's');
-    eq('x.y', Stripe::verifyWebhook($p, 't=' . NOW . ',v1=' . $sig, 's', NOW)['type']);
+    eq('x.y', (new WebhookVerifier('s'))->verify($p, 't=' . NOW . ',v1=' . $sig, NOW)['type']);
 });
 test('when the Stripe signature uses another secret, should reject it', function () {
     $p = '{"type":"x.y"}';
     $sig = hash_hmac('sha256', NOW . '.' . $p, 'errado');
-    throws(AuthException::class, fn () => Stripe::verifyWebhook($p, 't=' . NOW . ',v1=' . $sig, 's', NOW));
+    throws(AuthException::class, fn () => (new WebhookVerifier('s'))->verify($p, 't=' . NOW . ',v1=' . $sig, NOW));
 });
 test('when the Stripe timestamp is older than 5 minutes, should reject it', function () {
     $p = '{"type":"x.y"}';
     $t = NOW - 600;
-    throws(AuthException::class, fn () => Stripe::verifyWebhook($p, "t=$t,v1=" . hash_hmac('sha256', $t . '.' . $p, 's'), 's', NOW));
+    throws(AuthException::class, fn () => (new WebhookVerifier('s'))->verify($p, "t=$t,v1=" . hash_hmac('sha256', $t . '.' . $p, 's'), NOW));
 });
 test('when the body changes after signing, should reject it', function () {
     $sig = hash_hmac('sha256', NOW . '.{"type":"a"}', 's');
-    throws(AuthException::class, fn () => Stripe::verifyWebhook('{"type":"b"}', 't=' . NOW . ',v1=' . $sig, 's', NOW));
+    throws(AuthException::class, fn () => (new WebhookVerifier('s'))->verify('{"type":"b"}', 't=' . NOW . ',v1=' . $sig, NOW));
 });
 test('when the signature header is empty, should reject it', function () {
-    throws(AuthException::class, fn () => Stripe::verifyWebhook('{}', '', 's', NOW));
+    throws(AuthException::class, fn () => (new WebhookVerifier('s'))->verify('{}', '', NOW));
 });
 
 test('when a token is signed, should verify with the public key', function () {
@@ -130,20 +133,20 @@ test('when the same e-mail logs in with a new account id, should not renew the t
     eq(NOW, $repo->ensure(['uid' => 'u2-nova', 'email' => 'ana@example.com'], NOW + 3 * 86400)['trialStartedAt']);
 });
 test('when consuming past the daily limit, should refuse', function () {
-    $repo = new UserRepository(new MemoryStore());
+    $repo = new UsageQuota(new MemoryStore());
     eq(true, $repo->consume('u_a', 'summary', 1, NOW)['allowed']);
     eq(false, $repo->consume('u_a', 'summary', 1, NOW)['allowed']);
 });
 test('when a new day starts in Sao Paulo, should reset the quota', function () {
-    $repo = new UserRepository(new MemoryStore());
+    $repo = new UsageQuota(new MemoryStore());
     $repo->consume('u_a', 'summary', 1, NOW);          // 31/12 21:00 em São Paulo
     eq(true, $repo->consume('u_a', 'summary', 1, NOW + 4 * 3600)['allowed']); // 01/01 01:00 em São Paulo
 });
 test('when 02:30 UTC, should still be the previous day in Sao Paulo', function () {
-    eq('20251231', UserRepository::dayKey(NOW + 2 * 3600 + 1800));
+    eq('20251231', UsageQuota::dayKey(NOW + 2 * 3600 + 1800));
 });
 test('when limits are per feature, should not share quota between features', function () {
-    $repo = new UserRepository(new MemoryStore());
+    $repo = new UsageQuota(new MemoryStore());
     $repo->consume('u_a', 'summary', 1, NOW);
     eq(true, $repo->consume('u_a', 'mindmap', 1, NOW)['allowed']);
 });
@@ -153,8 +156,9 @@ test('when a subscription event is older than the saved one, should ignore it', 
     $repo->ensure(['uid' => 'u', 'email' => 'ana@example.com'], NOW);
     $k = userKey();
     $new = ['id' => 's', 'status' => 'active', 'priceId' => 'p', 'currentPeriodEnd' => NOW + 100, 'cancelAtPeriodEnd' => false];
-    $repo->applySubscription($k, $new, NOW + 50);
-    $repo->applySubscription($k, ['status' => 'canceled'] + $new, NOW + 10);
+    $subs = new SubscriptionRepository($store);
+    $subs->applySubscription($k, $new, NOW + 50);
+    $subs->applySubscription($k, ['status' => 'canceled'] + $new, NOW + 10);
     eq('active', $repo->find($k)['subscription']['status']);
 });
 

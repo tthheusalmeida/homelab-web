@@ -3,16 +3,15 @@ declare(strict_types=1);
 
 namespace Homelab;
 
-/** Despacha a requisição: método, origem, limite de uso, autenticação e erros sem vazar detalhes. */
+/** Despacha a requisição: acha a rota, passa pelos guards, autentica e traduz erros sem vazar detalhes. */
 final class Router
 {
-    /** @param array<int,Route> $routes @param array<int,string> $allowedOrigins */
+    /** @param array<int,Route> $routes @param array<int,Guard> $guards */
     public function __construct(
         private array $routes,
+        private array $guards,
         private FirebaseAuth $auth,
-        private RateLimiter $limiter,
         private Logger $log,
-        private array $allowedOrigins,
     ) {
     }
 
@@ -22,13 +21,11 @@ final class Router
         if ($route === null) {
             return new Response($this->pathExists($request->path) ? 405 : 404, ['error' => 'not_found']);
         }
-        if (!$this->limiter->allow($request->ip . '|' . $route->path(), $route->rateLimitPerMinute(), 60, $now)) {
-            return new Response(429, ['error' => 'rate_limited']);
-        }
-        // Navegadores mandam Origin: só o nosso site pode chamar rotas autenticadas (o app desktop não manda).
-        $origin = $request->headers['origin'] ?? null;
-        if ($route->requiresAuth() && $origin !== null && !in_array($origin, $this->allowedOrigins, true)) {
-            return new Response(403, ['error' => 'forbidden_origin']);
+        foreach ($this->guards as $guard) {
+            $blocked = $guard->check($request, $route, $now);
+            if ($blocked !== null) {
+                return $blocked;
+            }
         }
 
         try {

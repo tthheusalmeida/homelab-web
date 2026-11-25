@@ -36,20 +36,23 @@ final class App
     {
         $plans = new Plans($config);
         $users = new UserRepository($store);
+        $quota = new UsageQuota($store);
+        $subscriptions = new SubscriptionRepository($store);
         $entitlement = new Entitlement($plans);
         $signer = new Signer($config->string('signing.secretKey'));
         $stripe = new Stripe($config->string('stripe.secretKey'), $http);
         $siteUrl = rtrim($config->string('siteUrl'), '/');
 
         $routes = [
-            new MeRoute($users, $entitlement, $plans, $signer),
+            new MeRoute($users, $quota, $entitlement, $plans, $signer),
             new PlansRoute(new PriceCatalog($plans, $stripe, $cache)),
-            new UsageRoute($users, $entitlement, $plans),
+            new UsageRoute($users, $quota, $entitlement, $plans),
             new CheckoutRoute($users, $entitlement, $plans, $stripe, $siteUrl),
             new PortalRoute($users, $stripe, $siteUrl),
-            new WebhookRoute($users, $config->string('stripe.webhookSecret'), $log),
+            new WebhookRoute($users, $subscriptions, new WebhookVerifier($config->string('stripe.webhookSecret')), $log),
         ];
         $origins = $config->get('allowedOrigins', [$siteUrl]);
-        return new Router($routes, new FirebaseAuth($config->string('firebase.projectId'), $http, $cache), $limiter, $log, is_array($origins) ? $origins : [$siteUrl]);
+        $guards = [new RateLimitGuard($limiter), new OriginGuard(is_array($origins) ? $origins : [$siteUrl])];
+        return new Router($routes, $guards, new FirebaseAuth($config->string('firebase.projectId'), $http, $cache), $log);
     }
 }
