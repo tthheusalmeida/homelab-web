@@ -353,19 +353,42 @@ h1, h2 { text-wrap: balance; }
 .checks li::before { content: ""; position: absolute; left: 0; top: 3px; width: 16px; height: 18px; background: var(--accent); clip-path: var(--hex); }
 
 /* ───────── Planos ───────── */
-.plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 840px; margin: 48px auto 0; }
-.plan { --cut: 40px; padding: 40px calc(var(--cut) + 14px) 44px; display: flex; flex-direction: column; gap: 12px; }
-.plan.featured { --hx-line: color-mix(in srgb, var(--accent) 65%, transparent); --hx-fill: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
-.plan:hover { transform: translateY(-4px); }
-.badge { position: absolute; top: 22px; right: 54px; padding: 4px 16px; background: var(--accent); color: var(--accent-ink); font: 700 10.5px var(--mono); letter-spacing: 0.1em; clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%); }
+.plans { position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; max-width: 840px; margin: 48px auto 0; }
+/* backlight do Pro: luz atrás da coluna do Pro (o clip-path do card cortaria uma sombra normal). É destaque fixo do plano, não indica "plano atual". */
+.plans::before {
+  content: ""; position: absolute; z-index: -1; right: -7%; top: 50%; width: 58%; height: 105%;
+  transform: translateY(-50%); pointer-events: none; filter: blur(26px);
+  background: radial-gradient(closest-side, var(--glow), transparent 100%); opacity: 0.75;
+  animation: planGlow 5s ease-in-out infinite;
+}
+@keyframes planGlow { 50% { opacity: 0.42; transform: translateY(-50%) scale(0.96); } }
+/* Card de plano = painel de servidor: barra de título de terminal com LED (aceso = plano atual). */
+.plan { position: relative; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; transition: transform 0.4s var(--ease), border-color 0.3s, box-shadow 0.4s var(--ease); }
+.plan:hover { transform: translateY(-4px); border-color: var(--line-strong); box-shadow: 0 18px 50px -30px var(--glow); }
+.plan.featured { border-color: color-mix(in srgb, var(--accent) 38%, transparent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.plan.is-current, .plan.is-current:hover { border-color: var(--accent); }
+.plan.is-current.warn, .plan.is-current.warn:hover { border-color: #f5b942; }
+.plan-bar { display: flex; align-items: center; gap: 10px; padding: 11px 16px; background: color-mix(in srgb, var(--text) 4%, transparent); border-bottom: 1px solid var(--line); font: 500 12px/1 var(--mono); color: var(--muted); min-height: 44px; }
+.plan-bar .badge { margin-left: auto; }
+.led { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); transition: background 0.4s, box-shadow 0.4s; }
+.plan.is-current .led { background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: ledPulse 2.4s ease-in-out infinite; }
+.plan.is-current.warn .led { background: #f5b942; box-shadow: 0 0 10px #f5b942; }
+@keyframes ledPulse { 50% { opacity: 0.45; } }
+.plan-body { display: flex; flex-direction: column; gap: 12px; padding: 26px 28px 30px; flex: 1; }
+/* adesivo do plano Pro: canto superior direito do card, abaixo da barra */
+.plan-sticker { position: absolute; top: 58px; right: 20px; width: 78px; height: 78px; object-fit: contain; rotate: 8deg; animation: bob 3.6s ease-in-out infinite; pointer-events: none; z-index: 1; }
+.plan-sticker.t-light { display: none; }
+:root[data-theme="light"] .plan-sticker.t-dark { display: none; }
+:root[data-theme="light"] .plan-sticker.t-light { display: block; }
+.badge { padding: 4px 14px; background: var(--accent); color: var(--accent-ink); font: 700 10.5px var(--mono); letter-spacing: 0.1em; clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 8px 100%, 0 50%); }
 .price { font-size: 40px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
 .price small { font-size: 15px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
 .plan-note { color: var(--muted); font-size: 13.5px; }
-.plan ul { list-style: none; padding: 0; display: grid; gap: 10px; margin: 6px 0 16px; flex: 1; }
-.plan li { position: relative; padding-left: 26px; font-size: 14px; }
-.plan li::before { content: ""; position: absolute; left: 0; top: 4px; width: 13px; height: 15px; background: var(--accent); clip-path: var(--hex); }
+.plan ul { list-style: none; padding: 0; display: grid; align-content: start; gap: 10px; margin: 6px 0 16px; flex: 1; }
+.plan li { position: relative; padding-left: 24px; font-size: 14px; }
+.plan li::before { content: "✓"; position: absolute; left: 0; top: 0; font: 700 14px/1.55 var(--mono); color: var(--accent); }
 .plan li.off { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line-strong); }
-.plan li.off::before { background: var(--line-strong); }
+.plan li.off::before { content: "×"; color: var(--muted); }
 .plan .btn { align-self: flex-start; }
 
 /* ───────── Final e rodapé ───────── */
@@ -422,6 +445,8 @@ h1, h2 { text-wrap: balance; }
 }
 @media (max-width: 620px) {
   .plans { grid-template-columns: 1fr; }
+  .plan-sticker { display: none !important; }
+  .plans::before { right: 50%; top: auto; bottom: -4%; width: 90%; height: 52%; transform: translateX(50%); animation: none; }
   .honey, .honey.sm, .honey.md { --hw: 100%; --hpoly: polygon(26px 0, calc(100% - 26px) 0, 100% 50%, calc(100% - 26px) 100%, 26px 100%, 0 50%); width: 100%; }
   .honey-row { flex-direction: column; margin: 0 !important; gap: 10px; }
   .honey { gap: 10px; }
@@ -435,6 +460,7 @@ h1, h2 { text-wrap: balance; }
   .foot-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .plans::before, .plan-sticker { animation: none; }
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
   .step h3, .step p, .sticker { opacity: 1; transform: none; }

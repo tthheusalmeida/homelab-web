@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+<defs><filter id="s" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity="0.35"/></filter></defs>
+<g filter="url(#s)">
+<g>
+  <polygon points="30,140 20,64 60,92 96,40 132,92 172,64 162,140" fill="#fff" stroke="#fff" stroke-width="16" stroke-linejoin="round"/><polygon points="30,138 162,138 162,158 30,158" fill="#fff" stroke="#fff" stroke-width="16" stroke-linejoin="round"/>
+  <circle cx="20" cy="60" r="11" fill="#fff" stroke="#fff" stroke-width="16" stroke-linejoin="round"/><circle cx="96" cy="34" r="11" fill="#fff" stroke="#fff" stroke-width="16" stroke-linejoin="round"/><circle cx="172" cy="60" r="11" fill="#fff" stroke="#fff" stroke-width="16" stroke-linejoin="round"/>
+</g>
+<polygon points="30,140 20,64 60,92 96,40 132,92 172,64 162,140" fill="#22d3ee" stroke="#22d3ee" stroke-width="6" stroke-linejoin="round"/>
+<polygon points="30,138 162,138 162,158 30,158" fill="#0e7490" stroke="#0e7490" stroke-width="6" stroke-linejoin="round"/>
+<polygon points="96,40 132,92 96,140" fill="#fff" opacity="0.2"/>
+<polygon points="60,92 96,40 96,140" fill="#000" opacity="0.1"/>
+<polygon points="20,64 60,92 38,140" fill="#fff" opacity="0.16"/>
+<polygon points="172,64 132,92 154,140" fill="#000" opacity="0.16"/>
+<polygon points="30,138 162,138 162,148 30,148" fill="#fff" opacity="0.16"/>
+<circle cx="20" cy="60" r="8" fill="#a5f3fc"/><circle cx="18" cy="58" r="3" fill="#fff" opacity="0.8"/><circle cx="96" cy="34" r="8" fill="#a5f3fc"/><circle cx="94" cy="32" r="3" fill="#fff" opacity="0.8"/><circle cx="172" cy="60" r="8" fill="#a5f3fc"/><circle cx="170" cy="58" r="3" fill="#fff" opacity="0.8"/>
+<polygon points="96,88 109,95.5 109,110.5 96,118 83,110.5 83,95.5" fill="#0b5568" opacity="0.85" stroke="#a5f3fc" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="96,88 109,95.5 96,103 83,95.5" fill="#fff" opacity="0.25"/>
+</g></svg>
