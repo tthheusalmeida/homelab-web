@@ -53,36 +53,7 @@
     });
   }
 
-  /* ───── Colmeia: o hexágono sob o mouse cresce e empurra todos os outros em cascata ─────
-     Cada célula se afasta do centro da hovered pela mesma distância (o quanto ela cresceu),
-     então o espaço entre elas continua igual. Ao trocar de hexágono tudo é recalculado do zero. */
-  var HOVER_SCALE = 1.1; // igual ao scale do :hover no CSS
-  if (!reduced && window.matchMedia("(hover: hover)").matches) {
-    document.querySelectorAll(".honey").forEach(function (honey) {
-      var cells = honey.querySelectorAll(".hexcell");
-      function reset() { cells.forEach(function (c) { c.style.removeProperty("--dx"); c.style.removeProperty("--dy"); }); }
-      cells.forEach(function (cell) {
-        cell.addEventListener("pointerenter", function () {
-          if (!window.matchMedia("(min-width: 621px)").matches) return; // no celular a colmeia vira lista
-          var hr = cell.getBoundingClientRect();
-          var hx = hr.left + hr.width / 2, hy = hr.top + hr.height / 2;
-          var push = (HOVER_SCALE - 1) * hr.width / 2;
-          cells.forEach(function (o) {
-            if (o === cell) { o.style.setProperty("--dx", "0px"); o.style.setProperty("--dy", "0px"); return; }
-            var r = o.getBoundingClientRect();
-            // o getBoundingClientRect já inclui o deslocamento atual: tira para achar a posição de repouso
-            var cs = getComputedStyle(o).translate.split(" ");
-            var cx = parseFloat(cs[0]) || 0, cy = parseFloat(cs[1]) || 0;
-            var dx = r.left + r.width / 2 - cx - hx, dy = r.top + r.height / 2 - cy - hy;
-            var dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
-            o.style.setProperty("--dx", (dx / dist * push).toFixed(1) + "px");
-            o.style.setProperty("--dy", (dy / dist * push).toFixed(1) + "px");
-          });
-        });
-      });
-      honey.addEventListener("pointerleave", reset);
-    });
-  }
+  /* A colmeia com "dedo" (hover) agora vive em honey.js; no celular ela vira slide (slider.js). */
 
   /* ───── Teclado do notebook ───── */
   var keysEl = document.getElementById("keys");

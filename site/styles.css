@@ -285,6 +285,9 @@ h1, h2 { text-wrap: balance; }
 }
 .hexcell::before { content: ""; position: absolute; inset: 1.5px; z-index: -1; background: var(--hx-fill); clip-path: var(--hpoly); transition: background 0.35s; }
 .hexcell:hover { --hx-line: var(--accent); --hx-fill: color-mix(in srgb, var(--accent) 9%, var(--surface)); transform: scale(1.1); z-index: 2; }
+/* Colmeia com dedo (honey.js): a mola move translate/scale; o CSS cuida só de cor e entrada */
+.honey.live .hexcell { transition: background 0.35s, transform 0.9s var(--ease), opacity 1s var(--ease); will-change: translate, scale; }
+.honey.live .hexcell:hover, .honey.live .hexcell.reveal.in:hover { transform: none; }
 .hexcell h3 { font-size: 13.5px; line-height: 1.25; }
 .hexcell p { color: var(--muted); font-size: 11.5px; line-height: 1.42; }
 .hexcell.reveal { transform: translateY(24px) scale(0.92); }
