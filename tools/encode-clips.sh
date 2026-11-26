@@ -6,6 +6,7 @@
 #   <nome>-<tema>.webm|.mp4        prévia leve, 1040x628 (hero, cartões, notebook 3D)
 #   <nome>-<tema>-hd.webm|.mp4     versão do modal, 1360x820 (a gravação deve ter essa resolução)
 #   <nome>-<tema>.jpg              poster, quadro em 40% do clipe
+# Quadro-chave a cada 30 quadros (1 s): pular no vídeo (barra do modal) fica instantâneo.
 # START=0.6 corta o começo da gravação (segundos), para o clipe já abrir perto da primeira ação.
 # Precisa de ffmpeg e ffprobe no PATH.
 set -euo pipefail
@@ -18,8 +19,8 @@ start="${START:-0}" # START=0.6 pula o começo (mouse parado antes do primeiro c
 speed="${SPEED:-1}" # SPEED=1.3 acelera a gravação (ex.: tirar a espera)
 enc() { # sufixo largura altura crf-webm crf-mp4
   local vf="setpts=PTS/$speed,fps=30,scale=$2:$3:flags=lanczos"
-  ffmpeg -y -loglevel error -ss "$start" -i "$in" -an -vf "$vf" -c:v libvpx-vp9 -b:v 0 -crf "$4" -row-mt 1 "$out/$name-$theme$1.webm"
-  ffmpeg -y -loglevel error -ss "$start" -i "$in" -an -vf "$vf" -c:v libx264 -preset slow -crf "$5" -pix_fmt yuv420p -movflags +faststart "$out/$name-$theme$1.mp4"
+  ffmpeg -y -loglevel error -ss "$start" -i "$in" -an -vf "$vf" -c:v libvpx-vp9 -g 30 -keyint_min 30 -b:v 0 -crf "$4" -row-mt 1 "$out/$name-$theme$1.webm"
+  ffmpeg -y -loglevel error -ss "$start" -i "$in" -an -vf "$vf" -c:v libx264 -g 30 -keyint_min 30 -sc_threshold 0 -preset slow -crf "$5" -pix_fmt yuv420p -movflags +faststart "$out/$name-$theme$1.mp4"
 }
 enc "" 1040 628 36 26
 enc "-hd" 1360 820 33 23

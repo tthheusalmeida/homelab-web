@@ -193,7 +193,7 @@
     el.where.style.display = where ? "" : "none";
   }
   function clearMedia() {
-    if (vid) { vid.pause(); vid.removeAttribute("src"); vid.load(); }
+    if (vid) vid.pause();
     vid = null;
     if (rafId) cancelAnimationFrame(rafId);
     rafId = 0;
@@ -201,37 +201,57 @@
   }
   function setCtrlEnabled(on) { dlg.classList.toggle("is-still", !on); }
 
-  /* mostra um clipe: tenta o arquivo HD, depois o leve; se faltar, mostra a captura parada */
+  /* Um <video> por clipe, criado uma vez e reaproveitado: trocar de clipe ou voltar a um já visto não recarrega nada. */
+  var pool = {};
+  function makeVideo(id) {
+    var key = id + "-" + theme();
+    if (pool[key]) return pool[key];
+    var v = document.createElement("video");
+    v.className = "vm-video"; v.muted = true; v.playsInline = true; v.preload = "auto";
+    v.setAttribute("playsinline", "");
+    v.poster = "assets/app/video/" + id + "-" + theme() + ".jpg";
+    v._start = 0;
+    var triedLight = false;
+    v.addEventListener("error", function () {
+      if (!triedLight) { triedLight = true; v.src = clipUrl(id, false); return; }
+      if (v === vid) showStill("assets/app/" + id + "-" + theme() + ".png", "Este vídeo ainda não está disponível.");
+    });
+    ["timeupdate", "progress", "durationchange", "seeked"].forEach(function (n) { v.addEventListener(n, function () { if (v === vid) paint(); }); });
+    v.addEventListener("loadedmetadata", function () {
+      if (v._start) { try { v.currentTime = v._start; } catch (e) { /* ainda sem dados */ } v._start = 0; }
+      if (v === vid) paint();
+    });
+    v.addEventListener("ended", function () {
+      if (v !== vid || !queue) return;
+      if (qIdx + 1 < QUEUE.length) { qIdx++; show(QUEUE[qIdx]); }
+      else if (loop) { qIdx = 0; show(QUEUE[0]); }
+    });
+    v.addEventListener("play", function () { if (v === vid) syncPlayIcon(); });
+    v.addEventListener("pause", function () { if (v === vid) syncPlayIcon(); });
+    v.addEventListener("loadeddata", function () { if (v === vid) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } });
+    setSrc(v, clipUrl(id, true));
+    pool[key] = v;
+    return v;
+  }
+
+  /* mostra um clipe (HD; se faltar, o leve; se faltar, a captura parada) */
   function show(id, start) {
     var c = byId(id);
     if (!c) return;
     current = id;
-    clearMedia();
+    if (vid) vid.pause();
+    el.media.textContent = "";
     setMeta(c.title, c.desc, c.where);
     setCtrlEnabled(true);
-    var v = document.createElement("video");
-    v.className = "vm-video"; v.muted = true; v.loop = queue ? false : loop; v.playsInline = true; v.preload = "auto";
-    v.setAttribute("playsinline", "");
-    v.poster = "assets/app/video/" + id + "-" + theme() + ".jpg";
-    var triedLight = false;
-    v.addEventListener("error", function () {
-      if (!triedLight) { triedLight = true; v.src = clipUrl(id, false); return; }
-      showStill("assets/app/" + id + "-" + theme() + ".png", "Este vídeo ainda não está disponível.");
-    });
-    ["timeupdate", "progress", "loadedmetadata", "durationchange", "seeked"].forEach(function (n) { v.addEventListener(n, paint); });
-    v.addEventListener("ended", function () {
-      if (!queue) return;
-      if (qIdx + 1 < QUEUE.length) { qIdx++; show(QUEUE[qIdx]); }
-      else if (loop) { qIdx = 0; show(QUEUE[0]); }
-    });
-    if (start) v.addEventListener("loadedmetadata", function () { try { v.currentTime = start; } catch (e) { /* ainda sem dados */ } }, { once: true });
-    v.addEventListener("play", syncPlayIcon); v.addEventListener("pause", syncPlayIcon);
-    v.addEventListener("loadeddata", function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); });
+    var v = makeVideo(id);
+    v.loop = queue ? false : loop;
     v.playbackRate = speeds[speedIdx];
-    setSrc(v, clipUrl(id, true));
-    if (queue) setTimeout(prefetchQueue, 300);
     el.media.appendChild(v);
     vid = v;
+    if (v.readyState >= 1) { try { v.currentTime = start || 0; } catch (e) { /* sem dados */ } } // já carregado: troca na hora
+    else v._start = start || 0;
+    var p = v.play(); if (p && p.catch) p.catch(function () {}); // se ainda carrega, começa assim que puder
+    if (queue) setTimeout(prefetchQueue, 300);
     paint(); syncPlayIcon();
   }
   /* Baixa o arquivo inteiro e toca a partir da memória: assim dá para avançar e voltar mesmo em servidor
@@ -246,13 +266,13 @@
     return blobs[url];
   }
   function setSrc(v, url) {
-    getBlob(url).then(function (u) { if (v.isConnected) v.src = u; })
-      .catch(function () { if (v.isConnected) v.src = url; });
+    getBlob(url).then(function (u) { v.src = u; })
+      .catch(function () { v.src = url; });
   }
   /* baixa os próximos clipes da fila enquanto o atual toca, para a troca ser imediata */
   function prefetchQueue() {
     if (!queue) return;
-    for (var k = 1; k < QUEUE.length; k++) { var u = clipUrl(QUEUE[(qIdx + k) % QUEUE.length], true); if (!blobs[u]) { getBlob(u).catch(function () {}); } }
+    for (var k = 1; k < QUEUE.length; k++) { var u = clipUrl(QUEUE[(qIdx + k) % QUEUE.length], true); makeVideo(QUEUE[(qIdx + k) % QUEUE.length]); }
   }
   function showStill(src, note) {
     if (vid) { vid.pause(); }
