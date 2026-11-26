@@ -1,0 +1,24 @@
+import { connect, installCursor, Pointer, startRec, D } from "./lib.mjs";
+import { execFileSync } from "node:child_process";
+const theme = process.argv[2] || "dark";
+const { browser, page, cdp } = await connect();
+await page.getByText("Início", { exact: true }).first().click();
+await installCursor(page);
+await page.mouse.move(900, 300); await page.evaluate(() => window.__cur(900, 300));
+await page.waitForTimeout(600);
+const stop = await startRec(cdp, `${D}/frames-paleta`);
+const p = new Pointer(page); p.x = 900; p.y = 300;
+await page.waitForTimeout(900);
+await page.keyboard.down("Control"); await page.keyboard.press("k"); await page.keyboard.up("Control");
+await page.waitForTimeout(900);
+for (const ch of "admin") { await page.keyboard.type(ch); await page.waitForTimeout(170); }
+await page.waitForTimeout(900);
+await page.keyboard.press("ArrowDown"); await page.waitForTimeout(500);
+await page.keyboard.press("ArrowUp"); await page.waitForTimeout(900);
+await page.keyboard.press("Enter");
+await page.waitForTimeout(2200);
+await page.getByText("Início", { exact: true }).first().click();
+await page.waitForTimeout(900);
+const n = await stop();
+console.log("frames", n);
+await browser.close();
