@@ -554,3 +554,49 @@ h1, h2 { text-wrap: balance; }
 
 /* o brilho do Pro pode passar da coluna, mas nunca da largura da tela */
 #planos { overflow-x: clip; }
+
+/* ───────── Hero: o app já na primeira dobra ───────── */
+.hero { gap: 48px; justify-content: space-between; }
+.hero-shot { position: relative; flex: 0 1 560px; min-width: 0; margin: 0; border: 1px solid var(--line-strong); border-radius: 14px; overflow: hidden; background: var(--surface); box-shadow: 0 30px 80px -24px rgba(0, 0, 0, 0.6), 0 0 90px -30px var(--accent); }
+.hero-shot-bar { display: flex; align-items: center; gap: 6px; padding: 9px 12px; border-bottom: 1px solid var(--line-strong); font: 500 11px var(--mono); color: var(--muted); }
+.hero-shot-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
+.hero-shot-bar span { margin-left: 8px; }
+.hero-shot-screen { position: relative; aspect-ratio: 1040 / 627; background: var(--a-bg, #111); }
+.hero-shot-screen img, .hero-shot-screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-shot-screen img.t-light { display: none; }
+:root[data-theme="light"] .hero-shot-screen img.t-dark { display: none; }
+:root[data-theme="light"] .hero-shot-screen img.t-light { display: block; }
+.hero-shot-screen video { opacity: 0; transition: opacity 0.5s ease; }
+.hero-shot-screen video.on { opacity: 1; }
+@media (max-width: 960px) { .hero-shot { display: none; } }
+
+/* ───────── "Onde fica" nos detalhes ───────── */
+.hexcell .where { font: 500 10px/1.3 var(--mono); color: var(--accent); letter-spacing: 0.02em; }
+
+/* ───────── Caminho dos dados (privacidade) ───────── */
+.privacy { display: flex; align-items: stretch; gap: 14px; margin-top: 56px; }
+.pv-node { flex: 1 1 0; min-width: 0; padding: 18px 18px 20px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface); }
+.pv-node.pv-local { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.pv-node .tag { display: block; margin-bottom: 8px; font: 500 10.5px var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; }
+.pv-node h3 { font-size: 16px; margin-bottom: 6px; }
+.pv-node p { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.pv-link { display: grid; place-items: center; align-content: center; gap: 4px; flex: none; width: 70px; color: var(--accent); }
+.pv-link svg { width: 56px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pv-link small { font: 500 10px var(--mono); color: var(--muted); text-align: center; }
+@media (max-width: 760px) {
+  .privacy { flex-direction: column; }
+  .pv-link { width: auto; grid-auto-flow: column; justify-content: center; }
+  .pv-link svg { transform: rotate(90deg); width: 40px; }
+}
+
+/* ───────── Perguntas frequentes ───────── */
+.narrow-col { width: min(780px, 100% - 48px); margin-inline: auto; }
+.faq { margin-top: 36px; border-top: 1px solid var(--line-strong); }
+.faq details { border-bottom: 1px solid var(--line-strong); }
+.faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 2px; font-weight: 600; font-size: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: ""; flex: none; width: 10px; height: 10px; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(45deg); transition: transform 0.25s ease; margin-top: -4px; }
+.faq details[open] summary::after { transform: rotate(-135deg); margin-top: 4px; }
+.faq summary:hover { color: var(--accent); }
+.faq p { color: var(--muted); font-size: 15px; line-height: 1.6; padding: 0 2px 20px; max-width: 64ch; }
+.faq code { font-family: var(--mono); font-size: 0.9em; color: var(--text); }

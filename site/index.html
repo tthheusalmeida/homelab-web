@@ -6,6 +6,18 @@
   <title>HomeLab — Transforme aulas e PDFs em conhecimento</title>
   <meta name="description" content="App desktop para estudar com IA: transcreve vídeos no seu computador, resume, cria mapas mentais e infográficos e guarda tudo numa biblioteca sua." />
   <meta name="theme-color" content="#0b0c0e" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="HomeLab" />
+  <meta property="og:title" content="HomeLab — Transforme aulas e PDFs em conhecimento" />
+  <meta property="og:description" content="App desktop para estudar com IA: transcreve vídeos no seu computador, resume, cria mapas mentais e infográficos e guarda tudo numa biblioteca sua." />
+  <meta property="og:image" content="assets/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HomeLab — Transforme aulas e PDFs em conhecimento" />
+  <meta name="twitter:description" content="Transcreve no seu computador, resume com IA e entrega mapa mental e infográfico." />
+  <meta name="twitter:image" content="assets/og.png" />
   <link rel="icon" href="assets/icon.png" />
   <script>
     /* aplica o tema antes de pintar, sem "piscar" */
@@ -58,6 +70,14 @@
         </div>
         <p class="fine reveal d3">Windows e Linux · Sem cartão para começar</p>
       </div>
+      <figure class="hero-shot reveal d2" aria-label="O HomeLab gerando um mapa mental">
+        <div class="hero-shot-bar"><i></i><i></i><i></i><span>HomeLab</span></div>
+        <div class="hero-shot-screen">
+          <img class="t-dark" src="assets/app/mapa-mental-dark-1040.png" width="1040" height="627" alt="Mapa mental de um resumo" />
+          <img class="t-light" src="assets/app/mapa-mental-light-1040.png" width="1040" height="627" alt="Mapa mental de um resumo" />
+          <video id="hero-video" muted loop playsinline preload="none" aria-hidden="true"></video>
+        </div>
+      </figure>
     </section>
 
     <!-- HISTÓRIA DO NOTEBOOK -->
@@ -175,6 +195,15 @@
           <div class="honey-row off"><div class="hexcell accent reveal d3"><h3>Ollama</h3><span class="tag">local</span></div><div class="hexcell reveal d3"><h3>Troca automática</h3><p>se o modelo estiver sobrecarregado</p></div></div>
         </div>
       </div>
+      <div class="container">
+        <div class="privacy reveal" aria-label="O caminho dos seus dados">
+          <div class="pv-node pv-local"><span class="tag">no seu computador</span><h3>Vídeo e PDF</h3><p>Download, áudio e transcrição ficam aqui. O áudio nunca sai.</p></div>
+          <div class="pv-link" aria-hidden="true"><svg viewBox="0 0 80 24"><path d="M2 12h68M62 5l9 7-9 7"/></svg><small>só o texto</small></div>
+          <div class="pv-node"><span class="tag">a IA que você escolheu</span><h3>Gemini · Claude · Groq · Ollama</h3><p>Com a sua chave. Com o Ollama, nem o texto sai do computador.</p></div>
+          <div class="pv-link" aria-hidden="true"><svg viewBox="0 0 80 24"><path d="M2 12h68M62 5l9 7-9 7"/></svg><small>resumo</small></div>
+          <div class="pv-node pv-local"><span class="tag">no seu computador</span><h3>Sua biblioteca</h3><p>Páginas em Markdown, numa pasta sua. Chaves cifradas pelo sistema.</p></div>
+        </div>
+      </div>
     </section>
 
     <!-- E TEM MAIS -->
@@ -183,9 +212,9 @@
         <p class="eyebrow reveal">// e tem mais</p>
         <h2 class="reveal d1 big">Detalhes que fazem diferença.</h2>
         <div class="honey md features-honey">
-          <div class="honey-row"><div class="hexcell reveal "><h3>Transcrição com tempo</h3><p>Marcas [HH:MM:SS] e horários que abrem o vídeo no ponto certo.</p></div><div class="hexcell reveal d1"><h3>Retoma sem perder nada</h3><p>Tarefa que falha continua da etapa em que parou, mesmo após fechar o app.</p></div><div class="hexcell reveal d2"><h3>Livros</h3><p>Agrupe páginas com sumário, busca e progresso de leitura.</p></div></div>
-          <div class="honey-row off"><div class="hexcell reveal "><h3>Buscar no texto</h3><p>Ctrl F acha a frase inteira e destaca cada ocorrência.</p></div><div class="hexcell reveal d1"><h3>Aviso ao terminar</h3><p>Notificação do sistema quando uma tarefa longa acaba.</p></div><div class="hexcell reveal d2"><h3>Leve em PCs fracos</h3><p>Telas sob demanda e consultas calmas. Usa a placa NVIDIA se existir.</p></div></div>
-          <div class="honey-row"><div class="hexcell reveal "><h3>Seu visual</h3><p>Tema claro ou escuro, cor de destaque à escolha e animações suaves.</p></div><div class="hexcell reveal d1"><h3>Backup em um clique</h3><p>Um único .zip com o que você escolher levar.</p></div><div class="hexcell reveal d2"><h3>Consumo da IA</h3><p>Acompanhe requisições e custo, sem surpresa na fatura.</p></div></div>
+          <div class="honey-row"><div class="hexcell reveal "><h3>Transcrição com tempo</h3><p>Marcas [HH:MM:SS] e horários que abrem o vídeo no ponto certo.</p><span class="where">Página › transcrição</span></div><div class="hexcell reveal d1"><h3>Retoma sem perder nada</h3><p>Tarefa que falha continua da etapa em que parou, mesmo após fechar o app.</p><span class="where">Em andamento › Tentar de novo</span></div><div class="hexcell reveal d2"><h3>Livros</h3><p>Agrupe páginas com sumário, busca e progresso de leitura.</p><span class="where">Biblioteca › Livros</span></div></div>
+          <div class="honey-row off"><div class="hexcell reveal "><h3>Buscar no texto</h3><p>Ctrl F acha a frase inteira e destaca cada ocorrência.</p><span class="where">Páginas › Ctrl F</span></div><div class="hexcell reveal d1"><h3>Aviso ao terminar</h3><p>Notificação do sistema quando uma tarefa longa acaba.</p><span class="where">Notificação do sistema</span></div><div class="hexcell reveal d2"><h3>Leve em PCs fracos</h3><p>Telas sob demanda e consultas calmas. Usa a placa NVIDIA se existir.</p><span class="where">Automático</span></div></div>
+          <div class="honey-row"><div class="hexcell reveal "><h3>Seu visual</h3><p>Tema claro ou escuro, cor de destaque à escolha e animações suaves.</p><span class="where">Configurações › Aparência</span></div><div class="hexcell reveal d1"><h3>Backup em um clique</h3><p>Um único .zip com o que você escolher levar.</p><span class="where">Configurações › Backup</span></div><div class="hexcell reveal d2"><h3>Consumo da IA</h3><p>Acompanhe requisições e custo, sem surpresa na fatura.</p><span class="where">IA › Consumo</span></div></div>
         </div>
       </div>
     </section>
@@ -237,6 +266,21 @@
       </div>
     </section>
 
+    <!-- PERGUNTAS -->
+    <section class="section alt" id="faq">
+      <div class="container narrow-col">
+        <p class="eyebrow reveal">// perguntas</p>
+        <h2 class="reveal d1 big">Antes de baixar.</h2>
+        <div class="faq reveal d2">
+          <details><summary>Preciso de uma chave de IA?</summary><p>Para usar Gemini, Claude ou Groq, sim: você cria a chave no site do serviço e cola no app, que a guarda cifrada. Se preferir não usar nenhuma, rode o Ollama no seu computador e tudo fica local.</p></details>
+          <details><summary>Funciona sem internet?</summary><p>A transcrição sempre roda no seu computador. O resumo precisa da IA: com o Ollama local funciona offline; com uma IA na nuvem, precisa de internet. Além disso, o trial pede conexão uma vez por dia e o Pro confirma a assinatura a cada 30 dias.</p></details>
+          <details><summary>O Windows mostrou um aviso ao instalar. É normal?</summary><p>Pode aparecer o aviso do SmartScreen, porque o instalador ainda não tem assinatura digital paga. Clique em “Mais informações” e depois em “Executar assim mesmo”. O código é aberto, sob licença MIT, e você pode conferi-lo no GitHub.</p></details>
+          <details><summary>Como instalo no Linux?</summary><p>Baixe o AppImage, dê permissão de execução (<code>chmod +x</code>) e abra. Não precisa instalar nada além disso.</p></details>
+          <details><summary>Meus vídeos e textos vão para a nuvem?</summary><p>O áudio nunca sai do seu computador. Só o texto transcrito vai para a IA que você configurou (e fica no seu computador se for o Ollama). A biblioteca é uma pasta de arquivos Markdown sua.</p></details>
+          <details><summary>E depois do trial?</summary><p>Você continua com acesso aos resumos e às transcrições que já fez. Para seguir gerando conteúdo, assine o Pro. Pode cancelar quando quiser pelo portal do Stripe.</p></details>
+        </div>
+      </div>
+    </section>
     <!-- BAIXAR -->
     <section class="section final" id="baixar">
       <div class="container center">
@@ -274,6 +318,7 @@
             <li><a href="#como-usar">Como usar</a></li>
             <li><a href="#ia">IA e privacidade</a></li>
             <li><a href="#planos">Planos</a></li>
+            <li><a href="#faq">Perguntas</a></li>
           </ul>
         </div>
         <div>
@@ -310,6 +355,7 @@
   <script src="main.js"></script>
   <script src="device3d.js"></script>
   <script src="slider.js"></script>
+  <script src="hero-video.js"></script>
   <script src="honey.js"></script>
 </body>
 </html>

@@ -29,3 +29,8 @@ Gera `.webm` (VP9) e `.mp4` (H.264), sem áudio, 1040×628. Alvo: **até 2 MB po
 
 ## Adicionar outro passo
 Coloque `data-video="nome"` no `<li>` do passo e grave `nome-dark` e `nome-light`. O código não muda.
+
+## Estado dos clipes
+- Gravados (tools/demo-capture): `paleta` e `mapa-mental`, nos dois temas.
+- Faltando: `nova-tarefa`. Precisa de yt-dlp e Whisper instalados (vídeo) ou de a leitura de PDF funcionar no app usado para gravar. Quando existir, é só gerar com `tools/encode-clips.sh`; o passo 2 já tem o `data-video`.
+- O hero (`site/hero-video.js`) toca o clipe `mapa-mental` numa janela do app, só em telas largas (a partir de 961px).
