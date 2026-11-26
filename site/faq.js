@@ -5,6 +5,24 @@
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var DUR = 420, EASE = "cubic-bezier(0.4, 0, 0.2, 1)";
 
+  /* altura mínima da lista = lista fechada + o maior texto aberto */
+  var list = document.querySelector(".faq");
+  function fit() {
+    if (!list) return;
+    var ds = list.querySelectorAll("details");
+    if (list.querySelector("details.is-open") || list.querySelector("details[open]")) return;
+    list.style.setProperty("--faq-min", "0px");
+    var base = list.offsetHeight, max = 0;
+    Array.prototype.forEach.call(ds, function (d) {
+      d.open = true; var h = list.offsetHeight - base; d.open = false;
+      if (h > max) max = h;
+    });
+    list.style.setProperty("--faq-min", (base + max) + "px");
+  }
+  fit();
+  window.addEventListener("resize", fit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+
   Array.prototype.forEach.call(document.querySelectorAll(".faq details"), function (d) {
     var sum = d.querySelector("summary");
     var body = d.querySelector("p");

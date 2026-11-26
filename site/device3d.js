@@ -105,7 +105,7 @@
   function loadSet(theme, then) {
     NAMES.forEach(function (n, i) {
       if (texCache[theme][i]) return;
-      loader.load("assets/app/" + n + "-" + theme + "-1040.png", function (t) {
+      loader.load("assets/app/" + n + "-" + theme + ".png", function (t) {
         t.encoding = THREE.sRGBEncoding;
         t.anisotropy = maxAniso;
         texCache[theme][i] = t;
@@ -200,7 +200,7 @@
     var c = document.createElement("canvas");
     c.width = 64; c.height = 64;
     var x = c.getContext("2d"), gr = x.createLinearGradient(0, 0, 64, 64);
-    gr.addColorStop(0, "rgba(255,255,255,0.16)"); gr.addColorStop(0.42, "rgba(255,255,255,0)");
+    gr.addColorStop(0, "rgba(255,255,255,0.07)"); gr.addColorStop(0.42, "rgba(255,255,255,0)");
     x.fillStyle = gr; x.fillRect(0, 0, 64, 64);
     var gl = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, toneMapped: false }));
     gl.renderOrder = 20; gl.position.z = 0.002;

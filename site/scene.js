@@ -160,10 +160,11 @@
     return camera.position.clone().add(tmpV.multiplyScalar(dist));
   }
 
-  /* Logo 3D da seção final: no lugar do ícone, maior, flutuando para cima e para baixo */
-  var finalOn = false, renderFinal = function () {};
-  var fc = document.getElementById("logo3d");
-  if (fc) {
+  /* Logos 3D extras (seção final e rodapé): o mesmo logo, flutuando para cima e para baixo */
+  var extras = [];
+  function addLogo(id, yAmp) {
+    var fc = document.getElementById(id);
+    if (!fc) return;
     try {
       var fr = new THREE.WebGLRenderer({ canvas: fc, antialias: true, alpha: true });
       var fs = new THREE.Scene();
@@ -185,19 +186,23 @@
       };
       sizeFinal();
       window.addEventListener("resize", sizeFinal);
-      renderFinal = function (t) {
-        L2.group.position.y = Math.sin(t * 1.4) * 0.28;
+      var item = { on: false, render: function (t) {
+        L2.group.position.y = Math.sin(t * 1.4) * yAmp;
         L2.group.rotation.y = Math.sin(t * 0.6) * 0.4 + mx * 0.5;
         L2.group.rotation.x = Math.sin(t * 0.7) * 0.1 - my * 0.25;
         placeParts(L2, 1, t, 0);
         fr.render(fs, fcam);
-      };
-      document.documentElement.classList.add("gl-logo");
+      } };
+      extras.push(item);
+      document.documentElement.classList.add("gl-" + id);
       if ("IntersectionObserver" in window) {
-        new IntersectionObserver(function (es) { finalOn = es[0].isIntersecting; if (finalOn && reduced) frame(); }, { rootMargin: "80px" }).observe(fc);
-      } else { finalOn = true; }
+        new IntersectionObserver(function (es) { item.on = es[0].isIntersecting; if (item.on && reduced) frame(); }, { rootMargin: "80px" }).observe(fc);
+      } else { item.on = true; }
     } catch (e) { /* fica o ícone comum */ }
   }
+  addLogo("logo3d", 0.28);
+  addLogo("logo3dFoot", 0.2);
+  if (document.getElementById("logo3d") && extras.length) document.documentElement.classList.add("gl-logo");
 
   var clock = new THREE.Clock();
   function frame() {
@@ -240,7 +245,7 @@
     glowMat.emissiveIntensity = 0.2 + Math.sin(t * 1.4) * 0.07;
 
     renderer.render(scene, camera);
-    if (finalOn) renderFinal(t);
+    for (var j = 0; j < extras.length; j++) if (extras[j].on) extras[j].render(t);
     if (!reduced) requestAnimationFrame(frame);
   }
   HL.applyTheme();

@@ -21,6 +21,9 @@
     { id: "consumo", title: "Consumo da IA", desc: "Acompanhe requisições e custo, sem surpresa na fatura.", where: "IA › Consumo" },
     { id: "backup", title: "Backup em um clique", desc: "Um único .zip com o que você escolher levar.", where: "Configurações › Backup" }
   ];
+  /* Fila do hero: os clipes tocam um depois do outro, com uma barra de progresso só */
+  var QUEUE = ["mapa-mental", "paleta", "livros", "buscar", "transcricao", "visual", "consumo", "backup"];
+  var queue = null, qIdx = 0, qDur = {};
   var STEP_STILL = ["biblioteca", "nova-tarefa", "mapa-mental", "infografico", "leitura", "paleta"];
   function byId(id) { for (var i = 0; i < LIST.length; i++) if (LIST[i].id === id) return LIST[i]; return null; }
   function theme() { return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark"; }
@@ -69,10 +72,9 @@
       '<button class="vm-btn vm-loop" type="button" aria-pressed="true" aria-label="Repetir">' + ICON.loop + "</button>" +
       '<button class="vm-btn vm-full" type="button" aria-label="Tela cheia">' + ICON.full + "</button>" +
       "</div>" +
-      '<nav class="vm-list" aria-label="Outros vídeos"></nav>' +
-      "</div>";
+            "</div>";
     document.body.appendChild(dlg);
-    ["shell", "title", "desc", "where", "close", "stage", "media", "center", "play", "time", "bar", "speed", "loop", "full", "list"].forEach(function (k) {
+    ["shell", "title", "desc", "where", "close", "stage", "media", "center", "play", "time", "bar", "speed", "loop", "full"].forEach(function (k) {
       el[k] = dlg.querySelector(k === "bar" ? ".vbar" : ".vm-" + k);
     });
     el.buf = dlg.querySelector(".vb-buf"); el.played = dlg.querySelector(".vb-played"); el.thumb = dlg.querySelector(".vb-thumb");
@@ -102,6 +104,20 @@
       if (!vid || !isFinite(vid.duration)) return;
       var r = el.bar.getBoundingClientRect();
       var k = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      if (queue) {
+        var target = k * qTimes().total, acc = 0;
+        for (var i = 0; i < QUEUE.length; i++) {
+          var du = qDur[QUEUE[i]] || qTimes().cur;
+          if (target < acc + du || i === QUEUE.length - 1) {
+            if (i !== qIdx) { qIdx = i; show(QUEUE[i], Math.min(Math.max(0, target - acc), du - 0.05)); }
+            else vid.currentTime = Math.min(Math.max(0, target - acc), vid.duration);
+            break;
+          }
+          acc += du;
+        }
+        paint();
+        return;
+      }
       vid.currentTime = k * vid.duration;
       paint();
     }
@@ -125,11 +141,39 @@
     var k = isFinite(d) && d > 0 ? t / d : 0;
     var b = 0;
     try { if (vid.buffered.length) b = vid.buffered.end(vid.buffered.length - 1) / d; } catch (e) { /* sem buffer */ }
+    if (queue) {
+      var q = qTimes();
+      k = q.total > 0 ? (q.before + (isFinite(t) ? t : 0)) / q.total : 0;
+      b = q.total > 0 ? (q.before + (b || 0) * (isFinite(d) ? d : q.cur)) / q.total : 0;
+      d = q.total; t = q.before + (isFinite(t) ? t : 0);
+    }
     el.played.style.width = (k * 100) + "%";
     el.thumb.style.left = (k * 100) + "%";
     el.buf.style.width = (Math.min(1, b || 0) * 100) + "%";
     el.bar.setAttribute("aria-valuenow", String(Math.round(k * 100)));
     el.time.textContent = fmt(t) + " / " + fmt(isFinite(d) ? d : 0);
+  }
+  /* duração de cada clipe da fila (lida dos metadados); enquanto falta, usa a média dos que já chegaram */
+  function qTimes() {
+    var known = 0, n = 0, i;
+    for (i = 0; i < QUEUE.length; i++) if (qDur[QUEUE[i]]) { known += qDur[QUEUE[i]]; n++; }
+    var avg = n ? known / n : 10, before = 0, total = 0, cur = avg;
+    for (i = 0; i < QUEUE.length; i++) {
+      var du = qDur[QUEUE[i]] || avg;
+      if (i < qIdx) before += du;
+      if (i === qIdx) cur = du;
+      total += du;
+    }
+    return { before: before, total: total, cur: cur };
+  }
+  function loadDurations() {
+    QUEUE.forEach(function (id) {
+      if (qDur[id]) return;
+      var v = document.createElement("video");
+      v.preload = "metadata"; v.muted = true;
+      v.addEventListener("loadedmetadata", function () { if (isFinite(v.duration)) { qDur[id] = v.duration; paint(); } v.removeAttribute("src"); v.load(); });
+      v.src = clipUrl(id, false);
+    });
   }
   function tick() { paint(); rafId = vid && !vid.paused ? requestAnimationFrame(tick) : 0; }
   function syncPlayIcon() {
@@ -147,19 +191,6 @@
     el.title.textContent = title; el.desc.textContent = desc; el.where.textContent = where || "";
     el.where.style.display = where ? "" : "none";
   }
-  function renderList(activeId) {
-    el.list.textContent = "";
-    el.list.hidden = !activeId;
-    if (!activeId) return;
-    LIST.forEach(function (c) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.className = "vm-chip" + (c.id === activeId ? " on" : "");
-      b.textContent = c.title;
-      b.addEventListener("click", function () { show(c.id); });
-      el.list.appendChild(b);
-    });
-  }
   function clearMedia() {
     if (vid) { vid.pause(); vid.removeAttribute("src"); vid.load(); }
     vid = null;
@@ -170,16 +201,15 @@
   function setCtrlEnabled(on) { dlg.classList.toggle("is-still", !on); }
 
   /* mostra um clipe: tenta o arquivo HD, depois o leve; se faltar, mostra a captura parada */
-  function show(id) {
+  function show(id, start) {
     var c = byId(id);
     if (!c) return;
     current = id;
     clearMedia();
     setMeta(c.title, c.desc, c.where);
-    renderList(id);
     setCtrlEnabled(true);
     var v = document.createElement("video");
-    v.className = "vm-video"; v.muted = true; v.loop = loop; v.playsInline = true; v.preload = "auto";
+    v.className = "vm-video"; v.muted = true; v.loop = queue ? false : loop; v.playsInline = true; v.preload = "auto";
     v.setAttribute("playsinline", "");
     v.poster = "assets/app/video/" + id + "-" + theme() + ".jpg";
     var triedLight = false;
@@ -188,6 +218,12 @@
       showStill("assets/app/" + id + "-" + theme() + ".png", "Este vídeo ainda não está disponível.");
     });
     ["timeupdate", "progress", "loadedmetadata", "durationchange", "seeked"].forEach(function (n) { v.addEventListener(n, paint); });
+    v.addEventListener("ended", function () {
+      if (!queue) return;
+      if (qIdx + 1 < QUEUE.length) { qIdx++; show(QUEUE[qIdx]); }
+      else if (loop) { qIdx = 0; show(QUEUE[0]); }
+    });
+    if (start) v.addEventListener("loadedmetadata", function () { try { v.currentTime = start; } catch (e) { /* ainda sem dados */ } }, { once: true });
     v.addEventListener("play", syncPlayIcon); v.addEventListener("pause", syncPlayIcon);
     v.addEventListener("loadeddata", function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); });
     v.playbackRate = speeds[speedIdx];
@@ -210,7 +246,6 @@
   function showStillFor(name, title, desc) {
     clearMedia();
     setMeta(title, desc, "");
-    renderList(null);
     showStill("assets/app/" + name + "-" + theme() + ".png", "");
   }
 
@@ -221,17 +256,23 @@
   }
   function onClose() {
     clearMedia();
+    queue = null;
     current = null;
     if (document.fullscreenElement) document.exitFullscreen();
     if (lastTrigger && lastTrigger.focus) lastTrigger.focus();
   }
-  function openClip(id, trigger) { openModal(trigger); show(id); }
+  function openClip(id, trigger) { queue = null; openModal(trigger); show(id); }
+  function openQueue(id, trigger) {
+    queue = QUEUE.slice(); qIdx = Math.max(0, QUEUE.indexOf(id));
+    openModal(trigger); loadDurations(); show(QUEUE[qIdx]);
+  }
 
   /* ───────── Ligações ───────── */
   // hero e outros blocos com data-clip (o cartão tem a própria ligação abaixo)
   Array.prototype.forEach.call(document.querySelectorAll("[data-clip]:not(.clip-card)"), function (host) {
     var id = host.getAttribute("data-clip");
-    addMax(host, function (b) { openClip(id, b); }, "Ampliar o vídeo: " + (byId(id) ? byId(id).title : id));
+    var isHero = host.classList.contains("hero-shot");
+    addMax(host, function (b) { if (isHero) openQueue(id, b); else openClip(id, b); }, "Ampliar o vídeo: " + (byId(id) ? byId(id).title : id));
   });
 
   // cartões de "E tem mais": prévia no hover, modal no clique
@@ -278,6 +319,7 @@
       var li = steps[i];
       if (byId(name) && li && li.getAttribute("data-video")) openClip(name, b);
       else {
+        queue = null;
         openModal(b);
         showStillFor(name, li ? li.querySelector("h3").textContent : name, li ? li.querySelector("p").textContent : "");
       }
