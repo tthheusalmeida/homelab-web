@@ -1,0 +1,22 @@
+import { connect, installCursor, Pointer, startRec, D } from "./lib.mjs";
+const { browser, page, cdp } = await connect();
+await page.keyboard.press("Escape");
+await page.getByText("Páginas", { exact: true }).first().click();
+await page.waitForTimeout(700);
+await page.getByText("Princípios da Administração Pública").first().click();
+await page.waitForTimeout(1500);
+await installCursor(page);
+await page.mouse.move(900, 300); await page.evaluate(() => window.__cur(900, 300));
+await page.waitForTimeout(500);
+const stop = await startRec(cdp, `${D}/frames-mapa`);
+const p = new Pointer(page); p.x = 900; p.y = 300;
+await page.waitForTimeout(700);
+await p.click('button:has-text("Mapa mental")', 800);
+await page.waitForTimeout(3600); // geração (resposta falsa com atraso) e o mapa aparecendo
+await p.move(1010, 520, 900);
+await page.waitForTimeout(1600);
+await p.click('button:has-text("Resumo")', 800);
+await page.waitForTimeout(1000);
+const n = await stop();
+console.log("frames", n);
+await browser.close();

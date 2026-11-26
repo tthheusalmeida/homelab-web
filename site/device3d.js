@@ -105,21 +105,88 @@
   function loadSet(theme, then) {
     NAMES.forEach(function (n, i) {
       if (texCache[theme][i]) return;
-      loader.load("assets/app/" + n + "-" + theme + "-1040.png", function (t) {
+      loader.load("assets/app/" + n + "-" + theme + ".png", function (t) {
         t.encoding = THREE.sRGBEncoding;
         t.anisotropy = maxAniso;
         texCache[theme][i] = t;
-        if (HL.state.dark === (theme === "dark")) { shotMats[i].map = t; shotMats[i].needsUpdate = true; dirty = true; }
+        if (HL.state.dark === (theme === "dark")) { setMap(i); dirty = true; }
         if (then && !wrap.classList.contains("d3")) then();
       });
     });
   }
   function useTheme(theme) {
-    var set = texCache[theme];
-    shotMats.forEach(function (m, i) { if (set[i]) { m.map = set[i]; m.needsUpdate = true; } });
+    shotMats.forEach(function (m, i) { setMap(i); });
     loadSet(theme, showWhenReady);
+    syncClips();
     dirty = true;
   }
+
+  /* ───── Clipes opcionais: um vídeo curto por recurso, no lugar da captura parada ─────
+     Um passo só tem clipe se o <li> dele em .story-steps tiver data-video="nome". Os arquivos ficam em
+     assets/app/video/<nome>-<tema>.webm|mp4. O vídeo só é pedido quando o passo aparece e a seção está na tela;
+     enquanto carrega (ou se falhar, ou com movimento reduzido / economia de dados), fica a captura parada. */
+  var stepEls = document.querySelectorAll("[data-story] .story-steps li");
+  var clipOf = NAMES.map(function (n, i) { return (stepEls[i] && stepEls[i].getAttribute("data-video")) || ""; });
+  var conn = navigator.connection || {};
+  var canClips = !reduced && !conn.saveData && clipOf.some(Boolean);
+  var preferWebm = (function () {
+    var v = document.createElement("video");
+    return !!(v.canPlayType && v.canPlayType('video/webm; codecs="vp9"'));
+  })();
+  var clips = [];
+  function themeName() { return HL.state.dark ? "dark" : "light"; }
+  function clipPlaying(i) { var c = clips[i]; return !!(c && c.ready && !c.failed && i === curStep && onScreen && !document.hidden); }
+  /* a textura do passo: o vídeo enquanto toca; senão, a captura do tema atual */
+  function setMap(i) {
+    var c = clips[i];
+    var tex = clipPlaying(i) ? c.tex : texCache[themeName()][i];
+    if (tex && shotMats[i].map !== tex) { shotMats[i].map = tex; shotMats[i].needsUpdate = true; dirty = true; }
+  }
+  function dropClip(i) {
+    var c = clips[i];
+    if (!c) return;
+    c.video.pause();
+    c.video.removeAttribute("src");
+    c.video.load();
+    if (c.tex) c.tex.dispose();
+    clips[i] = null;
+  }
+  function makeClip(i, theme) {
+    var video = document.createElement("video");
+    video.muted = true; video.loop = true; video.playsInline = true;
+    video.setAttribute("playsinline", ""); video.preload = "auto";
+    var c = { video: video, theme: theme, ready: false, failed: false, tex: null };
+    video.addEventListener("loadeddata", function () {
+      c.tex = new THREE.VideoTexture(video);
+      c.tex.encoding = THREE.sRGBEncoding;
+      c.tex.generateMipmaps = false;
+      c.ready = true;
+      setMap(i);
+    });
+    video.addEventListener("error", function () { c.failed = true; setMap(i); });
+    video.src = "assets/app/video/" + clipOf[i] + "-" + theme + (preferWebm ? ".webm" : ".mp4");
+    return c;
+  }
+  /* liga/pausa os vídeos conforme o passo atual, a seção na tela e a aba visível */
+  function syncClips() {
+    if (!canClips) return;
+    clipOf.forEach(function (name, i) {
+      if (!name) return;
+      var c = clips[i];
+      if (c && c.theme !== themeName()) { dropClip(i); c = null; }
+      var want = onScreen && !document.hidden && i === curStep;
+      if (want && !c) c = clips[i] = makeClip(i, themeName());
+      if (!c || c.failed) return;
+      if (want) {
+        if (c.video.paused) { var p = c.video.play(); if (p && p.catch) p.catch(function () { /* autoplay barrado: fica a captura */ }); }
+      } else if (!c.video.paused) {
+        c.video.pause();
+        if (i !== curStep) c.video.currentTime = 0; // ao voltar, o clipe recomeça do início
+      }
+      setMap(i);
+    });
+  }
+  document.addEventListener("visibilitychange", syncClips);
 
   var screenGeo = new THREE.PlaneGeometry(SW, SH);
   function makeScreen() {
@@ -133,7 +200,7 @@
     var c = document.createElement("canvas");
     c.width = 64; c.height = 64;
     var x = c.getContext("2d"), gr = x.createLinearGradient(0, 0, 64, 64);
-    gr.addColorStop(0, "rgba(255,255,255,0.16)"); gr.addColorStop(0.42, "rgba(255,255,255,0)");
+    gr.addColorStop(0, "rgba(255,255,255,0.07)"); gr.addColorStop(0.42, "rgba(255,255,255,0)");
     x.fillStyle = gr; x.fillRect(0, 0, 64, 64);
     var gl = new THREE.Mesh(screenGeo, new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, toneMapped: false }));
     gl.renderOrder = 20; gl.position.z = 0.002;
@@ -303,6 +370,7 @@
     var st = HL.story || { step: 0, open: 1, p: 0 };
     if (st.step !== curStep) {
       curStep = st.step;
+      syncClips();
       amb.copy(pal[Math.max(0, curStep) % pal.length]);
       pulseKeys();
       host.style.setProperty("--amb", "#" + amb.getHexString());
@@ -376,7 +444,7 @@
   var onPhone = function () { phone = phoneMq.matches; resize(); };
   if (phoneMq.addEventListener) phoneMq.addEventListener("change", onPhone); else phoneMq.addListener(onPhone);
   if ("IntersectionObserver" in window) {
-    new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; if (onScreen) kick(); }, { rootMargin: "120px" }).observe(host);
+    new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; syncClips(); if (onScreen) kick(); }, { rootMargin: "120px" }).observe(host);
   }
   var prevApply = HL.applyTheme;
   HL.applyTheme = function () { if (prevApply) prevApply(); applyTheme(); };

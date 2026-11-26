@@ -160,10 +160,11 @@
     return camera.position.clone().add(tmpV.multiplyScalar(dist));
   }
 
-  /* Logo 3D da seção final: no lugar do ícone, maior, flutuando para cima e para baixo */
-  var finalOn = false, renderFinal = function () {};
-  var fc = document.getElementById("logo3d");
-  if (fc) {
+  /* Logos 3D extras (seção final e rodapé): o mesmo logo, flutuando para cima e para baixo */
+  var extras = [];
+  function addLogo(id, yAmp) {
+    var fc = document.getElementById(id);
+    if (!fc) return;
     try {
       var fr = new THREE.WebGLRenderer({ canvas: fc, antialias: true, alpha: true });
       var fs = new THREE.Scene();
@@ -185,19 +186,22 @@
       };
       sizeFinal();
       window.addEventListener("resize", sizeFinal);
-      renderFinal = function (t) {
-        L2.group.position.y = Math.sin(t * 1.4) * 0.28;
+      var item = { on: false, render: function (t) {
+        L2.group.position.y = Math.sin(t * 1.4) * yAmp;
         L2.group.rotation.y = Math.sin(t * 0.6) * 0.4 + mx * 0.5;
         L2.group.rotation.x = Math.sin(t * 0.7) * 0.1 - my * 0.25;
         placeParts(L2, 1, t, 0);
         fr.render(fs, fcam);
-      };
-      document.documentElement.classList.add("gl-logo");
+      } };
+      extras.push(item);
+      document.documentElement.classList.add("gl-" + id);
       if ("IntersectionObserver" in window) {
-        new IntersectionObserver(function (es) { finalOn = es[0].isIntersecting; if (finalOn && reduced) frame(); }, { rootMargin: "80px" }).observe(fc);
-      } else { finalOn = true; }
+        new IntersectionObserver(function (es) { item.on = es[0].isIntersecting; if (item.on && reduced) frame(); }, { rootMargin: "80px" }).observe(fc);
+      } else { item.on = true; }
     } catch (e) { /* fica o ícone comum */ }
   }
+  addLogo("logo3d", 0.28);
+  if (document.getElementById("logo3d") && extras.length) document.documentElement.classList.add("gl-logo");
 
   var clock = new THREE.Clock();
   function frame() {
@@ -218,15 +222,27 @@
     var intro = reduced ? 1 : Math.min(1, Math.max(0, (t - 0.1) / 1.3));
     var scatter = smooth(heroS, 0.04, 0.75);
     placeParts(L1, intro * (1 - scatter), t, 0.22);
-    logo.visible = scatter < 0.995;
-    logo.scale.setScalar(wide ? 1.55 : 0.5);
-    logo.position.x = wide ? 4.4 : 0;
-    logo.position.y = (wide ? 0.2 : 3.1) + Math.sin(t * 0.9) * 0.15;
+    logo.visible = wide && scatter < 0.995; // no celular o logo some: o vídeo ocupa o lugar
+    /* Em tela larga o logo fica atrás do vídeo do hero (maior que ele, para aparecer pelas bordas) e
+       acompanha o vídeo com um pouco de atraso ao rolar, formando um efeito de profundidade */
+    var shot = wide ? document.querySelector(".hero-shot") : null, sb = shot ? shot.getBoundingClientRect() : null;
+    if (sb && sb.width > 0) {
+      var pc = pointOnPlane(sb.left + sb.width / 2, sb.top + sb.height / 2 + sy * 0.3, 0);
+      var pe = pointOnPlane(sb.left + sb.width, sb.top + sb.height / 2, 0);
+      var halfW = Math.abs(pe.x - pc.x);
+      logo.scale.setScalar(wide ? 1.55 : 0.5);
+      logo.position.x = pc.x;
+      logo.position.y = pc.y + Math.sin(t * 0.9) * 0.15;
+    } else {
+      logo.scale.setScalar(wide ? 1.55 : 0.5);
+      logo.position.x = wide ? 4.4 : 0;
+      logo.position.y = (wide ? 0.2 : 3.1) + Math.sin(t * 0.9) * 0.15;
+    }
     logo.rotation.y = Math.sin(t * 0.45) * 0.35 + mx * 0.45;
     logo.rotation.x = Math.sin(t * 0.5) * 0.12 - my * 0.3;
 
     /* Campo: cada célula sai do centro da logo, mais perto primeiro */
-    field.position.set(0, frac * 7, 0);
+    field.position.set(0, frac * 7 + (wide ? 0 : 10), wide ? 0 : 0);
     field.rotation.x = -0.35 + frac * 1.1 + my * 0.06;
     field.rotation.y = mx * 0.08 + frac * 0.4;
     for (var i = 0; i < cells.length; i++) {
@@ -240,7 +256,7 @@
     glowMat.emissiveIntensity = 0.2 + Math.sin(t * 1.4) * 0.07;
 
     renderer.render(scene, camera);
-    if (finalOn) renderFinal(t);
+    for (var j = 0; j < extras.length; j++) if (extras[j].on) extras[j].render(t);
     if (!reduced) requestAnimationFrame(frame);
   }
   HL.applyTheme();

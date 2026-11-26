@@ -1,0 +1,7 @@
+root/
+ud/
+frames-*/
+raw-*.mp4
+*.log
+*.out
+*.png
