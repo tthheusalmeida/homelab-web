@@ -299,8 +299,10 @@ h1, h2 { text-wrap: balance; }
 .honey.sm { --hw: 157px; }
 .honey.sm .hexcell h3 { font-size: 15px; letter-spacing: -0.02em; }
 .honey.md { --hw: 211px; }
-.hex-ico { display: grid; place-items: center; width: 34px; height: 39px; background: var(--accent-soft); clip-path: var(--hex); }
-.hex-ico svg { width: 20px; height: 20px; fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.hex-sticker { width: 52px; height: 52px; object-fit: contain; }
+.hex-sticker.t-light { display: none; }
+:root[data-theme="light"] .hex-sticker.t-dark { display: none; }
+:root[data-theme="light"] .hex-sticker.t-light { display: block; }
 .split { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 36px; align-items: center; }
 .split .honey { --hw: 200px; margin-inline: 0 auto; }
 .features-honey { margin-top: 48px; }

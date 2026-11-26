@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+<defs><filter id="s" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity="0.35"/></filter></defs>
+<g filter="url(#s)"><g>
+<g><polygon points="96,36 180,74 96,112 12,74" fill="#fff" stroke="#fff" stroke-width="16" stroke-linejoin="round"/><path d="M46 100 V134 Q96 166 146 134 V100 L96 122 Z" fill="#fff" stroke="#fff" stroke-width="16" stroke-linejoin="round"/><circle cx="166" cy="134" r="9" fill="#fff" stroke="#fff" stroke-width="16"/><line x1="166" y1="80" x2="166" y2="128" stroke="#fff" stroke-width="22" stroke-linecap="round"/></g>
+<polygon points="96,36 180,74 96,112 12,74" fill="#1bb5d4" stroke="#1bb5d4" stroke-width="5" stroke-linejoin="round"/>
+<path d="M46 100 V134 Q96 166 146 134 V100 L96 122 Z" fill="#0b6b85" stroke="#0b6b85" stroke-width="6" stroke-linejoin="round"/>
+
+<polygon points="96,36 180,74 96,112" fill="#fff" opacity="0.18"/>
+<polygon points="96,112 12,74 96,74" fill="#000" opacity="0.1"/>
+<path d="M96 122 L146 100 V134 Q122 150 96 154 Z" fill="#000" opacity="0.16"/>
+<line x1="166" y1="78" x2="166" y2="126" stroke="#a5f3fc" stroke-width="6" stroke-linecap="round"/>
+<circle cx="166" cy="134" r="9" fill="#a5f3fc"/><circle cx="163" cy="131" r="3" fill="#fff" opacity="0.8"/>
+</g></g></svg>
