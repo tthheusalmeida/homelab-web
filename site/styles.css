@@ -701,7 +701,7 @@ body:has(dialog[open]) { overflow: hidden; }
 @media (max-width: 620px) {
   .hslider { margin: 28px calc(-1 * var(--gutter)) 0; }
   /* celular: o vídeo vem primeiro, logo abaixo do menu; o texto fica embaixo e a seção é preenchida */
-  .hero { justify-content: flex-end; gap: 16px; padding-top: 108px; padding-bottom: 48px; }
+  .hero { justify-content: flex-end; gap: 2rem; padding-top: 108px; padding-bottom: 48px; }
   .hero::before { display: none; }
   .hero-shot { order: -1; margin-top: 0; z-index: 1; }
 }
