@@ -201,7 +201,6 @@
     } catch (e) { /* fica o ícone comum */ }
   }
   addLogo("logo3d", 0.28);
-  addLogo("logo3dFoot", 0.2);
   if (document.getElementById("logo3d") && extras.length) document.documentElement.classList.add("gl-logo");
 
   var clock = new THREE.Clock();
@@ -224,9 +223,21 @@
     var scatter = smooth(heroS, 0.04, 0.75);
     placeParts(L1, intro * (1 - scatter), t, 0.22);
     logo.visible = scatter < 0.995;
-    logo.scale.setScalar(wide ? 1.55 : 0.5);
-    logo.position.x = wide ? 4.4 : 0;
-    logo.position.y = (wide ? 0.2 : 3.1) + Math.sin(t * 0.9) * 0.15;
+    /* Em tela larga o logo fica atrás do vídeo do hero (maior que ele, para aparecer pelas bordas) e
+       acompanha o vídeo com um pouco de atraso ao rolar, formando um efeito de profundidade */
+    var shot = wide ? document.querySelector(".hero-shot") : null, sb = shot ? shot.getBoundingClientRect() : null;
+    if (sb && sb.width > 0) {
+      var pc = pointOnPlane(sb.left + sb.width / 2, sb.top + sb.height / 2 + sy * 0.3, 0);
+      var pe = pointOnPlane(sb.left + sb.width, sb.top + sb.height / 2, 0);
+      var halfW = Math.abs(pe.x - pc.x);
+      logo.scale.setScalar(Math.max(1, halfW * 2 * 1.0 / 3.2));
+      logo.position.x = pc.x;
+      logo.position.y = pc.y + Math.sin(t * 0.9) * 0.15;
+    } else {
+      logo.scale.setScalar(wide ? 1.55 : 0.5);
+      logo.position.x = wide ? 4.4 : 0;
+      logo.position.y = (wide ? 0.2 : 3.1) + Math.sin(t * 0.9) * 0.15;
+    }
     logo.rotation.y = Math.sin(t * 0.45) * 0.35 + mx * 0.45;
     logo.rotation.x = Math.sin(t * 0.5) * 0.12 - my * 0.3;
 

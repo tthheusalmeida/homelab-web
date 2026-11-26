@@ -46,7 +46,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; }
-html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+html { overflow-x: clip; overscroll-behavior-x: none; scroll-behavior: smooth; scroll-padding-top: 76px; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -414,7 +414,6 @@ h1, h2 { text-wrap: balance; }
   position: relative; padding: 56px 0 26px; overflow: hidden;
   border-top: 1px solid var(--line); background: color-mix(in srgb, var(--veil) 78%, transparent); backdrop-filter: blur(3px); color: var(--muted); font-size: 13.5px;
 }
-.foot-logo3d { display: block; width: 132px; height: 132px; margin: -14px 0 -6px -10px; filter: drop-shadow(0 10px 22px var(--glow)); }
 .footer .container { position: relative; }
 .foot-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.25fr; gap: 40px; }
 .foot-about p { margin: 14px 0 20px; max-width: 290px; line-height: 1.6; }
@@ -616,7 +615,7 @@ h1, h2 { text-wrap: balance; }
 @media (hover: none) { .max-btn { opacity: 0.92; transform: scale(0.9); } }
 
 /* ───────── Modal do vídeo ───────── */
-.vmodal { border: 0; padding: 0; background: transparent; color: #e8eaed; width: min(1440px, 96dvw); max-width: none; max-height: 96dvh; overflow: visible; }
+.vmodal { margin: auto; border: 0; padding: 0; background: transparent; color: #e8eaed; width: min(1440px, 96dvw); max-width: none; max-height: 96dvh; overflow: visible; }
 .vmodal::backdrop { background: rgba(4, 6, 8, 0.82); backdrop-filter: blur(6px); }
 .vmodal[open] { animation: vmIn 0.35s var(--ease); }
 @keyframes vmIn { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
@@ -663,6 +662,7 @@ h1, h2 { text-wrap: balance; }
   .vm-speed { min-width: 44px; padding: 0 6px; }
   .vm-stage { max-height: none; width: 100%; }
 }
+main { overflow-x: clip; }
 body:has(dialog[open]) { overflow: hidden; }
 
 /* ───────── Perguntas frequentes ───────── */
