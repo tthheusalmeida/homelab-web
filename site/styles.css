@@ -700,8 +700,9 @@ body:has(dialog[open]) { overflow: hidden; }
 /* ───────── Celular: ajustes de alinhamento ───────── */
 @media (max-width: 620px) {
   .hslider { margin: 28px calc(-1 * var(--gutter)) 0; }
-  /* sem o logo 3D no celular: o texto sobe e a janela com os vídeos vem depois */
-  .hero { justify-content: flex-start; padding-top: 104px; padding-bottom: 72px; }
+  /* celular: o vídeo vem primeiro, logo abaixo do menu; o texto fica embaixo e a seção é preenchida */
+  .hero { justify-content: space-between; gap: 24px; padding-top: 84px; padding-bottom: 48px; }
+  .hero-shot { order: -1; margin-top: 0; }
 }
 @media (max-width: 960px) {
   .story-text h2 { display: block; font-size: clamp(20px, 5.4dvw, 28px); margin-bottom: 10px; }
