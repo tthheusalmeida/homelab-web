@@ -242,7 +242,7 @@
     logo.rotation.x = Math.sin(t * 0.5) * 0.12 - my * 0.3;
 
     /* Campo: cada célula sai do centro da logo, mais perto primeiro */
-    field.position.set(0, frac * 7, 0);
+    field.position.set(0, frac * 7 + (wide ? 0 : 10), wide ? 0 : 0);
     field.rotation.x = -0.35 + frac * 1.1 + my * 0.06;
     field.rotation.y = mx * 0.08 + frac * 0.4;
     for (var i = 0; i < cells.length; i++) {
