@@ -100,8 +100,9 @@
     });
 
     /* barra de progresso: arrastar ou clicar leva o vídeo até o ponto */
-    function seekAt(e) {
+    function seekAt(e, force) {
       if (!vid || !isFinite(vid.duration)) return;
+      if (dragging && !force && vid.seeking && !queue) return; // arrastando: um salto de cada vez
       var r = el.bar.getBoundingClientRect();
       var k = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
       if (queue) {
@@ -123,7 +124,7 @@
     }
     el.bar.addEventListener("pointerdown", function (e) { dragging = true; el.bar.setPointerCapture(e.pointerId); seekAt(e); });
     el.bar.addEventListener("pointermove", function (e) { if (dragging) seekAt(e); });
-    el.bar.addEventListener("pointerup", function () { dragging = false; });
+    el.bar.addEventListener("pointerup", function (e) { if (dragging) seekAt(e, true); dragging = false; });
     el.bar.addEventListener("pointercancel", function () { dragging = false; });
 
     dlg.addEventListener("keydown", function (e) {
@@ -192,7 +193,7 @@
     el.where.style.display = where ? "" : "none";
   }
   function clearMedia() {
-    if (vid) { vid.pause(); vid.removeAttribute("src"); vid.load(); if (vid._blobUrl) URL.revokeObjectURL(vid._blobUrl); }
+    if (vid) { vid.pause(); vid.removeAttribute("src"); vid.load(); }
     vid = null;
     if (rafId) cancelAnimationFrame(rafId);
     rafId = 0;
@@ -228,18 +229,30 @@
     v.addEventListener("loadeddata", function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); });
     v.playbackRate = speeds[speedIdx];
     setSrc(v, clipUrl(id, true));
+    if (queue) setTimeout(prefetchQueue, 300);
     el.media.appendChild(v);
     vid = v;
     paint(); syncPlayIcon();
   }
   /* Baixa o arquivo inteiro e toca a partir da memória: assim dá para avançar e voltar mesmo em servidor
      sem suporte a Range (sem isso o navegador não deixa pular para outro ponto do vídeo). */
+  var blobs = {}; // url -> promessa do blob local; guardado na sessão, então rever o clipe é instantâneo
+  function getBlob(url) {
+    if (!blobs[url]) {
+      blobs[url] = fetch(url).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.blob(); })
+        .then(function (b) { return URL.createObjectURL(b); })
+        .catch(function (e) { delete blobs[url]; throw e; });
+    }
+    return blobs[url];
+  }
   function setSrc(v, url) {
-    fetch(url).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.blob(); }).then(function (b) {
-      if (!v.isConnected) return;
-      v._blobUrl = URL.createObjectURL(b);
-      v.src = v._blobUrl;
-    }).catch(function () { if (v.isConnected) v.src = url; });
+    getBlob(url).then(function (u) { if (v.isConnected) v.src = u; })
+      .catch(function () { if (v.isConnected) v.src = url; });
+  }
+  /* baixa os próximos clipes da fila enquanto o atual toca, para a troca ser imediata */
+  function prefetchQueue() {
+    if (!queue) return;
+    for (var k = 1; k < QUEUE.length; k++) { var u = clipUrl(QUEUE[(qIdx + k) % QUEUE.length], true); if (!blobs[u]) { getBlob(u).catch(function () {}); } }
   }
   function showStill(src, note) {
     if (vid) { vid.pause(); }
@@ -273,7 +286,7 @@
   function openClip(id, trigger) { queue = null; openModal(trigger); show(id); }
   function openQueue(id, trigger) {
     queue = QUEUE.slice(); qIdx = Math.max(0, QUEUE.indexOf(id));
-    openModal(trigger); loadDurations(); show(QUEUE[qIdx]);
+    openModal(trigger); loadDurations(); show(QUEUE[qIdx]); prefetchQueue();
   }
 
   /* ───────── Ligações ───────── */
