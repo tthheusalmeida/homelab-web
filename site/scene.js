@@ -222,7 +222,7 @@
     var intro = reduced ? 1 : Math.min(1, Math.max(0, (t - 0.1) / 1.3));
     var scatter = smooth(heroS, 0.04, 0.75);
     placeParts(L1, intro * (1 - scatter), t, 0.22);
-    logo.visible = scatter < 0.995;
+    logo.visible = wide && scatter < 0.995; // no celular o logo some: o vídeo ocupa o lugar
     /* Em tela larga o logo fica atrás do vídeo do hero (maior que ele, para aparecer pelas bordas) e
        acompanha o vídeo com um pouco de atraso ao rolar, formando um efeito de profundidade */
     var shot = wide ? document.querySelector(".hero-shot") : null, sb = shot ? shot.getBoundingClientRect() : null;

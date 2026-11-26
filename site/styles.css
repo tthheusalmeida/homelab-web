@@ -456,7 +456,6 @@ h1, h2 { text-wrap: balance; }
   .story { height: 560dvh; }
   .story-sticky { grid-template-columns: 1fr; align-content: center; gap: 18px; padding-top: 70px; }
   .story-text h2 { display: none; }
-  .laptop-wrap { order: -1; }
   .story-steps li { display: none; opacity: 1; padding-left: 14px; }
   .story-steps li.active { display: block; transform: none; }
   .two-col, .split { grid-template-columns: 1fr; gap: 36px; }
@@ -701,8 +700,8 @@ body:has(dialog[open]) { overflow: hidden; }
 /* ───────── Celular: ajustes de alinhamento ───────── */
 @media (max-width: 620px) {
   .hslider { margin: 28px calc(-1 * var(--gutter)) 0; }
-  /* o texto começa abaixo do logo 3D; a janela do app vem depois e a seção cresce se precisar */
-  .hero { justify-content: flex-start; padding-top: max(300px, 36dvh); padding-bottom: 72px; }
+  /* sem o logo 3D no celular: o texto sobe e a janela com os vídeos vem depois */
+  .hero { justify-content: flex-start; padding-top: 104px; padding-bottom: 72px; }
 }
 @media (max-width: 960px) {
   .story-text h2 { display: block; font-size: clamp(20px, 5.4dvw, 28px); margin-bottom: 10px; }
@@ -710,3 +709,15 @@ body:has(dialog[open]) { overflow: hidden; }
 
 /* FAQ: a lista tem altura fixa (a do item mais alto aberto), para abrir e fechar não empurrar o resto da página */
 .faq { min-height: var(--faq-min, 0); }
+
+/* Celular: título de "recursos", depois o notebook (com os hexágonos de progresso) e por fim o texto do passo */
+@media (max-width: 960px) {
+  .story-text { display: contents; }
+  .story-text .eyebrow { order: 0; margin-bottom: -8px; }
+  .story-text h2 { order: 1; }
+  .laptop-wrap { order: 2; }
+  .story-steps { order: 3; }
+  .hero-prog { display: block; }
+}
+.hero-prog { display: none; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: color-mix(in srgb, var(--accent) 22%, transparent); z-index: 2; }
+.hero-prog i { display: block; height: 100%; width: 0; background: var(--accent); }
