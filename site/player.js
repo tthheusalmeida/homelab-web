@@ -192,7 +192,7 @@
     el.where.style.display = where ? "" : "none";
   }
   function clearMedia() {
-    if (vid) { vid.pause(); vid.removeAttribute("src"); vid.load(); }
+    if (vid) { vid.pause(); vid.removeAttribute("src"); vid.load(); if (vid._blobUrl) URL.revokeObjectURL(vid._blobUrl); }
     vid = null;
     if (rafId) cancelAnimationFrame(rafId);
     rafId = 0;
@@ -227,10 +227,19 @@
     v.addEventListener("play", syncPlayIcon); v.addEventListener("pause", syncPlayIcon);
     v.addEventListener("loadeddata", function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); });
     v.playbackRate = speeds[speedIdx];
-    v.src = clipUrl(id, true);
+    setSrc(v, clipUrl(id, true));
     el.media.appendChild(v);
     vid = v;
     paint(); syncPlayIcon();
+  }
+  /* Baixa o arquivo inteiro e toca a partir da memória: assim dá para avançar e voltar mesmo em servidor
+     sem suporte a Range (sem isso o navegador não deixa pular para outro ponto do vídeo). */
+  function setSrc(v, url) {
+    fetch(url).then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.blob(); }).then(function (b) {
+      if (!v.isConnected) return;
+      v._blobUrl = URL.createObjectURL(b);
+      v.src = v._blobUrl;
+    }).catch(function () { if (v.isConnected) v.src = url; });
   }
   function showStill(src, note) {
     if (vid) { vid.pause(); }
@@ -252,7 +261,7 @@
   function openModal(trigger) {
     build();
     lastTrigger = trigger || null;
-    if (!dlg.open) dlg.showModal();
+    if (!dlg.open) { dlg.showModal(); if (el.bar) el.bar.focus({ preventScroll: true }); } // foco na barra: setas e espaço funcionam de imediato
   }
   function onClose() {
     clearMedia();
