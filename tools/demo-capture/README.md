@@ -11,3 +11,9 @@ Roda o app desktop real com **dados de exemplo** e uma **IA falsa** (imita o Oll
 Requisitos: o app desktop compilado (`npm run build` em `desktop`), ffmpeg no PATH, Edge/Chromium do Playwright. Defina `HOMELAB_DESKTOP_DIR` se o desktop não estiver em `D:/homelab/desktop`. Rode a partir desta pasta; feche o app depois (ele tem instância única).
 
 Ainda não gravado: `nova-tarefa`. O fluxo de vídeo precisa de yt-dlp e Whisper instalados, e a leitura de PDF travou neste ambiente.
+
+## Clipes de "E tem mais"
+- `seed-extra.mjs` acrescenta uma transcrição com tempo, 3 livros e 54 registros de consumo de IA (o `restart-app.sh` já roda os dois seeds).
+- `rec-more.mjs <livros|consumo|buscar|transcricao|visual|backup> <dark|light>` grava cada um; `mk-more.sh <tema> <clipe...>` grava e monta o `raw-<clipe>-<tema>.mp4`.
+- `visual` troca o tema dentro do clipe: grave só em `dark` e converta o mesmo arquivo para os dois temas.
+- Converta com `SPEED=1.3 tools/encode-clips.sh raw-buscar-dark.mp4 buscar dark` (SPEED tira a espera). A conversão gera a prévia leve, a versão HD do modal e o poster.

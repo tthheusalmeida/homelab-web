@@ -31,6 +31,12 @@ Gera `.webm` (VP9) e `.mp4` (H.264), sem áudio, 1040×628. Alvo: **até 2 MB po
 Coloque `data-video="nome"` no `<li>` do passo e grave `nome-dark` e `nome-light`. O código não muda.
 
 ## Estado dos clipes
-- Gravados (tools/demo-capture): `paleta` e `mapa-mental`, nos dois temas.
-- Faltando: `nova-tarefa`. Precisa de yt-dlp e Whisper instalados (vídeo) ou de a leitura de PDF funcionar no app usado para gravar. Quando existir, é só gerar com `tools/encode-clips.sh`; o passo 2 já tem o `data-video`.
-- O hero (`site/hero-video.js`) toca o clipe `mapa-mental` numa janela do app, só em telas largas (a partir de 961px).
+- Gravados (tools/demo-capture), nos dois temas: `mapa-mental`, `paleta`, `livros`, `buscar`, `transcricao`, `visual`, `consumo` e `backup`.
+- Faltando: `nova-tarefa`. Precisa de yt-dlp e Whisper instalados (vídeo) ou de a leitura de PDF funcionar no app usado para gravar. Quando existir, gere com `tools/encode-clips.sh`; o passo 2 já tem o `data-video`.
+
+## Onde cada clipe aparece
+- Notebook 3D (passos 3 e 6): `mapa-mental` e `paleta`, prévia leve.
+- Hero (`site/hero-video.js`): `mapa-mental`.
+- "E tem mais" (cartões): `livros`, `buscar`, `transcricao`, `visual`, `consumo`, `backup`. Prévia no hover.
+- Modal (`site/player.js`): abre pelo hexágono que aparece no hover (hero, cartões e notebook) ou clicando no cartão. Usa a versão `-hd`; sem ela, a leve; sem nenhuma, a captura parada. Barra de progresso: trilho ciano escuro, carregado em ciano claro, visto e ponto atual em azul (hexágono). Atalhos: Espaço, setas (2 s), F (tela cheia), Esc.
+- Para um clipe novo: acrescente-o em `LIST` no `player.js` e o cartão em `index.html`.

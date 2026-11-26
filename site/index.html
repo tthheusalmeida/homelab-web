@@ -70,7 +70,7 @@
         </div>
         <p class="fine reveal d3">Windows e Linux · Sem cartão para começar</p>
       </div>
-      <figure class="hero-shot reveal d2" aria-label="O HomeLab gerando um mapa mental">
+      <figure class="hero-shot reveal d2" data-clip="mapa-mental" data-title="Mapa mental" data-where="Página › Mapa mental" aria-label="O HomeLab gerando um mapa mental">
         <div class="hero-shot-bar"><i></i><i></i><i></i><span>HomeLab</span></div>
         <div class="hero-shot-screen">
           <img class="t-dark" src="assets/app/mapa-mental-dark-1040.png" width="1040" height="627" alt="Mapa mental de um resumo" />
@@ -195,27 +195,87 @@
           <div class="honey-row off"><div class="hexcell accent reveal d3"><h3>Ollama</h3><span class="tag">local</span></div><div class="hexcell reveal d3"><h3>Troca automática</h3><p>se o modelo estiver sobrecarregado</p></div></div>
         </div>
       </div>
-      <div class="container">
-        <div class="privacy reveal" aria-label="O caminho dos seus dados">
-          <div class="pv-node pv-local"><span class="tag">no seu computador</span><h3>Vídeo e PDF</h3><p>Download, áudio e transcrição ficam aqui. O áudio nunca sai.</p></div>
-          <div class="pv-link" aria-hidden="true"><svg viewBox="0 0 80 24"><path d="M2 12h68M62 5l9 7-9 7"/></svg><small>só o texto</small></div>
-          <div class="pv-node"><span class="tag">a IA que você escolheu</span><h3>Gemini · Claude · Groq · Ollama</h3><p>Com a sua chave. Com o Ollama, nem o texto sai do computador.</p></div>
-          <div class="pv-link" aria-hidden="true"><svg viewBox="0 0 80 24"><path d="M2 12h68M62 5l9 7-9 7"/></svg><small>resumo</small></div>
-          <div class="pv-node pv-local"><span class="tag">no seu computador</span><h3>Sua biblioteca</h3><p>Páginas em Markdown, numa pasta sua. Chaves cifradas pelo sistema.</p></div>
-        </div>
-      </div>
     </section>
 
     <!-- E TEM MAIS -->
-    <section class="section alt">
+    <section class="section alt" id="detalhes">
       <div class="container">
         <p class="eyebrow reveal">// e tem mais</p>
         <h2 class="reveal d1 big">Detalhes que fazem diferença.</h2>
-        <div class="honey md features-honey">
-          <div class="honey-row"><div class="hexcell reveal "><h3>Transcrição com tempo</h3><p>Marcas [HH:MM:SS] e horários que abrem o vídeo no ponto certo.</p><span class="where">Página › transcrição</span></div><div class="hexcell reveal d1"><h3>Retoma sem perder nada</h3><p>Tarefa que falha continua da etapa em que parou, mesmo após fechar o app.</p><span class="where">Em andamento › Tentar de novo</span></div><div class="hexcell reveal d2"><h3>Livros</h3><p>Agrupe páginas com sumário, busca e progresso de leitura.</p><span class="where">Biblioteca › Livros</span></div></div>
-          <div class="honey-row off"><div class="hexcell reveal "><h3>Buscar no texto</h3><p>Ctrl F acha a frase inteira e destaca cada ocorrência.</p><span class="where">Páginas › Ctrl F</span></div><div class="hexcell reveal d1"><h3>Aviso ao terminar</h3><p>Notificação do sistema quando uma tarefa longa acaba.</p><span class="where">Notificação do sistema</span></div><div class="hexcell reveal d2"><h3>Leve em PCs fracos</h3><p>Telas sob demanda e consultas calmas. Usa a placa NVIDIA se existir.</p><span class="where">Automático</span></div></div>
-          <div class="honey-row"><div class="hexcell reveal "><h3>Seu visual</h3><p>Tema claro ou escuro, cor de destaque à escolha e animações suaves.</p><span class="where">Configurações › Aparência</span></div><div class="hexcell reveal d1"><h3>Backup em um clique</h3><p>Um único .zip com o que você escolher levar.</p><span class="where">Configurações › Backup</span></div><div class="hexcell reveal d2"><h3>Consumo da IA</h3><p>Acompanhe requisições e custo, sem surpresa na fatura.</p><span class="where">IA › Consumo</span></div></div>
+        <p class="lead reveal d2">Veja cada um funcionando. Passe o mouse para uma prévia e clique para abrir em tela maior.</p>
+        <div class="clips-grid">
+          <article class="clip-card reveal" data-clip="livros" data-title="Livros" data-where="Biblioteca › Livros">
+            <div class="clip-media">
+              <button class="clip-thumb" type="button" aria-label="Abrir o vídeo: Livros">
+                <img class="t-dark" src="assets/app/video/livros-dark.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <img class="t-light" src="assets/app/video/livros-light.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <video muted loop playsinline preload="none" aria-hidden="true"></video>
+                <span class="clip-play" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="clip-body"><h3>Livros</h3><p>Agrupe páginas com sumário, busca e progresso de leitura.</p><span class="where">Biblioteca › Livros</span></div>
+          </article>
+          <article class="clip-card reveal" data-clip="buscar" data-title="Buscar no texto" data-where="Páginas › Ctrl F">
+            <div class="clip-media">
+              <button class="clip-thumb" type="button" aria-label="Abrir o vídeo: Buscar no texto">
+                <img class="t-dark" src="assets/app/video/buscar-dark.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <img class="t-light" src="assets/app/video/buscar-light.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <video muted loop playsinline preload="none" aria-hidden="true"></video>
+                <span class="clip-play" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="clip-body"><h3>Buscar no texto</h3><p>Ctrl F acha a frase inteira e destaca cada ocorrência.</p><span class="where">Páginas › Ctrl F</span></div>
+          </article>
+          <article class="clip-card reveal" data-clip="transcricao" data-title="Transcrição com tempo" data-where="Página › Transcrição">
+            <div class="clip-media">
+              <button class="clip-thumb" type="button" aria-label="Abrir o vídeo: Transcrição com tempo">
+                <img class="t-dark" src="assets/app/video/transcricao-dark.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <img class="t-light" src="assets/app/video/transcricao-light.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <video muted loop playsinline preload="none" aria-hidden="true"></video>
+                <span class="clip-play" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="clip-body"><h3>Transcrição com tempo</h3><p>Marcas de tempo e linha do tempo que abrem o vídeo no ponto certo.</p><span class="where">Página › Transcrição</span></div>
+          </article>
+          <article class="clip-card reveal" data-clip="visual" data-title="Seu visual" data-where="Configurações › Aparência">
+            <div class="clip-media">
+              <button class="clip-thumb" type="button" aria-label="Abrir o vídeo: Seu visual">
+                <img class="t-dark" src="assets/app/video/visual-dark.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <img class="t-light" src="assets/app/video/visual-light.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <video muted loop playsinline preload="none" aria-hidden="true"></video>
+                <span class="clip-play" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="clip-body"><h3>Seu visual</h3><p>Tema claro ou escuro e a cor de destaque que você escolher.</p><span class="where">Configurações › Aparência</span></div>
+          </article>
+          <article class="clip-card reveal" data-clip="consumo" data-title="Consumo da IA" data-where="IA › Consumo">
+            <div class="clip-media">
+              <button class="clip-thumb" type="button" aria-label="Abrir o vídeo: Consumo da IA">
+                <img class="t-dark" src="assets/app/video/consumo-dark.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <img class="t-light" src="assets/app/video/consumo-light.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <video muted loop playsinline preload="none" aria-hidden="true"></video>
+                <span class="clip-play" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="clip-body"><h3>Consumo da IA</h3><p>Acompanhe requisições e custo, sem surpresa na fatura.</p><span class="where">IA › Consumo</span></div>
+          </article>
+          <article class="clip-card reveal" data-clip="backup" data-title="Backup em um clique" data-where="Configurações › Backup">
+            <div class="clip-media">
+              <button class="clip-thumb" type="button" aria-label="Abrir o vídeo: Backup em um clique">
+                <img class="t-dark" src="assets/app/video/backup-dark.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <img class="t-light" src="assets/app/video/backup-light.jpg" width="1040" height="628" alt="" loading="lazy" />
+                <video muted loop playsinline preload="none" aria-hidden="true"></video>
+                <span class="clip-play" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="clip-body"><h3>Backup em um clique</h3><p>Um único .zip com o que você escolher levar.</p><span class="where">Configurações › Backup</span></div>
+          </article>
         </div>
+        <ul class="more-row">
+          <li class="reveal"><h3>Retoma sem perder nada</h3><p>Tarefa que falha continua da etapa em que parou, mesmo após fechar o app.</p></li>
+          <li class="reveal"><h3>Aviso ao terminar</h3><p>Notificação do sistema quando uma tarefa longa acaba.</p></li>
+          <li class="reveal"><h3>Leve em PCs fracos</h3><p>Telas sob demanda e consultas calmas. Usa a placa NVIDIA se existir.</p></li>
+        </ul>
       </div>
     </section>
 
@@ -268,9 +328,12 @@
 
     <!-- PERGUNTAS -->
     <section class="section alt" id="faq">
-      <div class="container narrow-col">
-        <p class="eyebrow reveal">// perguntas</p>
-        <h2 class="reveal d1 big">Antes de baixar.</h2>
+      <div class="container two-col faq-grid">
+        <div>
+          <p class="eyebrow reveal">// perguntas</p>
+          <h2 class="reveal d1 big">Antes de baixar.</h2>
+          <p class="lead reveal d2">O essencial para decidir com calma. Se faltar algo, é só chamar pelo e-mail do rodapé.</p>
+        </div>
         <div class="faq reveal d2">
           <details><summary>Preciso de uma chave de IA?</summary><p>Para usar Gemini, Claude ou Groq, sim: você cria a chave no site do serviço e cola no app, que a guarda cifrada. Se preferir não usar nenhuma, rode o Ollama no seu computador e tudo fica local.</p></details>
           <details><summary>Funciona sem internet?</summary><p>A transcrição sempre roda no seu computador. O resumo precisa da IA: com o Ollama local funciona offline; com uma IA na nuvem, precisa de internet. Além disso, o trial pede conexão uma vez por dia e o Pro confirma a assinatura a cada 30 dias.</p></details>
@@ -281,6 +344,7 @@
         </div>
       </div>
     </section>
+
     <!-- BAIXAR -->
     <section class="section final" id="baixar">
       <div class="container center">
@@ -356,6 +420,8 @@
   <script src="device3d.js"></script>
   <script src="slider.js"></script>
   <script src="hero-video.js"></script>
+  <script src="player.js"></script>
+  <script src="faq.js"></script>
   <script src="honey.js"></script>
 </body>
 </html>
