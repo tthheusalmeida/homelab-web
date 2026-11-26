@@ -286,6 +286,13 @@
   var tmpC = new THREE.Color(), amb = new THREE.Color(0x22d3ee);
   var smoothOpen = 0, onScreen = true, running = false;
   var CLOSED = Math.PI / 2 - 0.02, OPEN = -0.2;
+  var REST_Y = -0.32;
+  var mx = 0, my = 0, tmx = 0, tmy = 0;
+  if (!reduced) window.addEventListener("pointermove", function (e) {
+    if (e.pointerType === "touch") return;
+    tmx = (e.clientX / window.innerWidth) * 2 - 1;
+    tmy = (e.clientY / window.innerHeight) * 2 - 1;
+  }, { passive: true });
 
   function pulseKeys() {
     for (var n = 0; n < 4; n++) keyInt[Math.floor(Math.random() * keyCount)] = 1;
@@ -308,13 +315,15 @@
     var o = reduced ? st.open : st.open;
     host.style.setProperty("--open", o.toFixed(3));
 
-    var ry = reduced ? -0.05 : Math.sin(st.p * Math.PI * 2.2) * 0.46 - 0.05;
-    var rx = reduced ? 0 : Math.cos(st.p * Math.PI * 1.6) * 0.04;
+    /* Parado numa posição em ângulo (a profundidade fica clara); só se mexe quando o mouse mexe */
+    mx += (tmx - mx) * 0.06;
+    my += (tmy - my) * 0.06;
+    var ry = REST_Y + mx * 0.3;
+    var rx = my * 0.08;
     if (phone) {
       laptop.visible = false;
       tablet.visible = true;
       tablet.rotation.set(rx - (1 - o) * 0.9, ry * 0.9, 0);
-      tablet.position.y = reduced ? 0 : Math.sin(now / 1100) * 0.05;
       tablet.scale.setScalar(0.82 + 0.18 * o);
       shadow.visible = false;
     } else {
