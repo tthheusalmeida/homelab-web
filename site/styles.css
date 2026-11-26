@@ -590,7 +590,7 @@ h1, h2 { text-wrap: balance; }
 :root[data-theme="light"] .clip-thumb img.t-light { display: block; }
 .clip-thumb video { opacity: 0; transition: opacity 0.4s ease; }
 .clip-thumb video.on { opacity: 1; }
-.clip-play { position: absolute; left: 14px; bottom: 14px; width: 40px; height: 46px; background: var(--accent); clip-path: var(--hex); transition: transform 0.4s var(--ease), opacity 0.3s; }
+.clip-play { display: none; position: absolute; left: 14px; bottom: 14px; width: 40px; height: 46px; background: var(--accent); clip-path: var(--hex); transition: transform 0.4s var(--ease), opacity 0.3s; }
 .clip-play::after { content: ""; position: absolute; left: 16px; top: 15px; border-left: 11px solid var(--accent-ink); border-top: 8px solid transparent; border-bottom: 8px solid transparent; }
 .clip-card:hover .clip-play { transform: scale(1.12); }
 .clip-thumb video.on ~ .clip-play { opacity: 0; }
