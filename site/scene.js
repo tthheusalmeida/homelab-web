@@ -230,7 +230,7 @@
       var pc = pointOnPlane(sb.left + sb.width / 2, sb.top + sb.height / 2 + sy * 0.3, 0);
       var pe = pointOnPlane(sb.left + sb.width, sb.top + sb.height / 2, 0);
       var halfW = Math.abs(pe.x - pc.x);
-      logo.scale.setScalar(Math.max(1, halfW * 2 * 1.0 / 3.2));
+      logo.scale.setScalar(wide ? 1.55 : 0.5);
       logo.position.x = pc.x;
       logo.position.y = pc.y + Math.sin(t * 0.9) * 0.15;
     } else {

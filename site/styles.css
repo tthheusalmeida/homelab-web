@@ -46,7 +46,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; }
-html { overflow-x: clip; overscroll-behavior-x: none; scroll-behavior: smooth; scroll-padding-top: 76px; }
+html { overscroll-behavior-x: none; scroll-behavior: smooth; scroll-padding-top: 76px; }
 body {
   background: var(--bg);
   color: var(--text);
@@ -631,7 +631,7 @@ h1, h2 { text-wrap: balance; }
 .vm-btn svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .vm-play svg { fill: currentColor; stroke: none; }
 .vm-loop[aria-pressed="true"] { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 60%, transparent); }
-.vm-stage { position: relative; border-radius: 10px; overflow: hidden; background: #000; aspect-ratio: 1360 / 820; max-height: calc(96dvh - 230px); margin-inline: auto; width: min(100%, calc((96dvh - 230px) * 1360 / 820)); }
+.vm-stage { position: relative; border-radius: 10px; overflow: hidden; background: #000; aspect-ratio: 1360 / 820; max-height: calc(95dvh - 172px); margin-inline: auto; width: min(100%, calc((95dvh - 172px) * 1360 / 820)); }
 .vm-media, .vm-video, .vm-img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .vm-video, .vm-img { object-fit: contain; background: #000; }
 .vm-note { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-size: 13px; color: #cbd0d6; text-shadow: 0 1px 6px #000; }
@@ -694,7 +694,7 @@ body:has(dialog[open]) { overflow: hidden; }
 .faq-grid > :first-child { position: sticky; top: 120px; }
 @media (max-width: 960px) { .faq-grid > :first-child { position: static; } }
 /* modal: o conjunto (título, vídeo e controles) tem a largura do vídeo */
-.vm-shell { width: min(100%, calc((96dvh - 230px) * 1360 / 820 + 2 * clamp(12px, 1.4dvw, 24px))); margin-inline: auto; }
+.vm-shell { width: min(100%, calc((95dvh - 172px) * 1360 / 820 + 2 * clamp(12px, 1.4dvw, 24px))); margin-inline: auto; }
 .vm-shell:fullscreen { width: 100%; }
 @media (max-width: 760px) { .vm-shell { width: 100%; } }
 
