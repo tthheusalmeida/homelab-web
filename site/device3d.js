@@ -287,11 +287,12 @@
   var smoothOpen = 0, onScreen = true, running = false;
   var CLOSED = Math.PI / 2 - 0.02, OPEN = -0.2;
   var REST_Y = -0.32;
-  var mx = 0, my = 0, tmx = 0, tmy = 0;
+  var mx = 0, my = 0, tmx = 0, tmy = 0, lastT = 0;
   if (!reduced) window.addEventListener("pointermove", function (e) {
     if (e.pointerType === "touch") return;
-    tmx = (e.clientX / window.innerWidth) * 2 - 1;
-    tmy = (e.clientY / window.innerHeight) * 2 - 1;
+    /* conta o MOVIMENTO do mouse, não onde ele está: parado em qualquer lado, o modelo volta à posição de repouso */
+    tmx = Math.max(-1, Math.min(1, tmx + (e.movementX || 0) * 0.004));
+    tmy = Math.max(-1, Math.min(1, tmy + (e.movementY || 0) * 0.004));
   }, { passive: true });
 
   function pulseKeys() {
@@ -316,8 +317,13 @@
     host.style.setProperty("--open", o.toFixed(3));
 
     /* Parado numa posição em ângulo (a profundidade fica clara); só se mexe quando o mouse mexe */
-    mx += (tmx - mx) * 0.06;
-    my += (tmy - my) * 0.06;
+    // o impulso do mouse some aos poucos (por tempo, não por quadro: igual em qualquer taxa de quadros)
+    var dt = Math.min(0.1, Math.max(0, (now - lastT) / 1000));
+    lastT = now;
+    var decay = Math.pow(0.08, dt), follow = 1 - Math.pow(0.0067, dt);
+    tmx *= decay; tmy *= decay;
+    mx += (tmx - mx) * follow;
+    my += (tmy - my) * follow;
     var ry = REST_Y + mx * 0.3;
     var rx = my * 0.08;
     if (phone) {
