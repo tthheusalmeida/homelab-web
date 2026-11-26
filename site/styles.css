@@ -268,6 +268,15 @@ h1, h2 { text-wrap: balance; }
 .progress-dots i:hover { transform: scale(1.3); background: var(--c, var(--accent)); }
 .progress-dots i.on { background: var(--c, var(--accent)); transform: scale(1.4); }
 
+/* Notebook/tablet 3D (device3d.js): quando o WebGL funciona, ele substitui o notebook em CSS */
+.device3d { position: relative; width: min(100%, 780px); aspect-ratio: 1.3; max-height: calc(100svh - 150px); margin-inline: auto; height: 0; overflow: hidden; opacity: 0; }
+.device3d canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.ambi3d { position: absolute; left: 16%; right: 16%; top: 14%; height: 44%; border-radius: 40px; background: var(--amb, #22d3ee); filter: blur(64px); opacity: calc(0.5 * var(--open, 0)); transition: background 1s var(--ease); pointer-events: none; }
+:root[data-theme="light"] .ambi3d { opacity: calc(0.38 * var(--open, 0)); }
+.laptop-wrap.d3 .device3d { height: auto; overflow: visible; opacity: 1; }
+.laptop-wrap.d3 .laptop { display: none; }
+@media (max-width: 620px) { .device3d { aspect-ratio: 1.5; } }
+
 /* ───────── Colmeia de hexágonos (o que resolve, IA, recursos) ───────── */
 .honey { --hw: 224px; --gap: 5px; --hpoly: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); display: flex; flex-direction: column; width: fit-content; margin-inline: auto; }
 .honey-row { display: flex; gap: var(--gap); margin-top: calc(var(--hw) * -0.2887 + var(--gap)); }

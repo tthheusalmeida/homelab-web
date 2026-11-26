@@ -137,6 +137,7 @@
     smoothOpen += (targetOpen - smoothOpen) * (reduced ? 1 : 0.12);
     var op = smoothOpen * smoothOpen * (3 - 2 * smoothOpen);
     laptop.style.setProperty("--open", op.toFixed(3));
+    HL.story = { step: current, open: op, p: smoothP }; // lido por device3d.js (notebook/tablet 3D)
     if (!reduced) {
       var ry = Math.sin(smoothP * Math.PI * 2.2) * 9 - 2;
       var rx = 2 + Math.cos(smoothP * Math.PI * 1.6) * 2;
