@@ -50,6 +50,15 @@ Opcional: `STRIPE_PRO_PRICES_ACCEPTED` (ids antigos separados por vírgula) e `S
    7. Login vindo do app (simulado): `localhost:8080/entrar/?app=1&port=4567&state=abcdefghijklmnop1234` com `nc -l 4567` ou `python3 -m http.server 4567` escutando → o navegador redireciona para `127.0.0.1:4567/callback?state=…&refresh_token=…`.
    8. Segurança: sem token `curl localhost:8080/api/me` → 401; `curl -X POST localhost:8080/api/webhook -d '{}'` → 400.
 
+### Conformidade (ver `docs/conformidade.md`)
+1. **Cookies:** abra `localhost:8080/` em janela anônima → banner sem nada carregado (aba Rede só com arquivos do próprio site, sem `fonts.googleapis.com`, `fonts.gstatic.com` nem `cdnjs`). Role, clique fora, navegue: o banner continua. "Rejeitar tudo" e "Aceitar tudo" têm o mesmo tamanho e cor. Escolha e confira `consents/…` no Firestore. "Preferências de cookies" no rodapé reabre.
+2. **Identificação:** rodapé de `/`, `/entrar/`, `/assinaturas/` e página `/contato/` mostram `RAZAO_SOCIAL_DEFAULT`, `CNPJ_DEFAULT`, `ENDERECO_DEFAULT` e `EMAIL_DEFAULT`.
+3. **Termos:** em `/entrar/` com um usuário novo, depois do login aparece a caixa desmarcada e o botão "Aceitar e continuar" só habilita ao marcar; confira `termsVersion` e `termsAcceptedAt` em `users/…`.
+4. **Checkout:** em `/assinaturas/`, logo abaixo do botão de assinar está o aviso de renovação automática, cancelamento e 7 dias; na tela do Stripe aparece o mesmo texto perto do botão de pagar.
+5. **Arrependimento:** depois de assinar com o cartão de teste, `/assinaturas/` mostra "Você pode desistir da compra até …" e o botão (dois cliques). Confirme no Stripe: reembolso integral e assinatura cancelada; a página volta ao plano de teste. Com `startedAt` mais antigo que 7 dias no Firestore, o botão some e `POST /api/refund` dá 403.
+6. **Logs:** depois de usar o site, veja `accessLogs/…` no Firestore com `ip`, `at`, `path`, `status` e `expireAt` ≈ 186 dias à frente (e a política de TTL ligada no console).
+7. **Dados da empresa:** `php tools/check-company.php` lista os `*_DEFAULT` pendentes.
+
 ## 3. Deploy (depois de ter domínio)
 
 No GitHub: Settings → Environments → `production` (restrinja à branch `main` e exija aprovação).

@@ -26,6 +26,7 @@ docs/                     decisões e como publicar
 - `docs/seguranca.md`: onde cada chave vive e o que fica exposto (resultado da validação).
 - `docs/viabilidade-hostinger.md`: o que a hospedagem precisa ter e como conferir.
 - `docs/api.md`: rotas, planos e dados.
+- `docs/conformidade.md`: cookies, termos, idade, identificação da empresa, arrependimento, logs de acesso e fontes: o que está feito e o que falta.
 - `docs/chaves-e-testes.md`: quais chaves, onde colocar, como rodar os testes e testar localmente.
 
 ## Rodar

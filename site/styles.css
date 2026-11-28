@@ -723,3 +723,10 @@ body:has(dialog[open]) { overflow: hidden; }
 }
 .hero-prog { display: none; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: color-mix(in srgb, var(--accent) 22%, transparent); z-index: 2; }
 .hero-prog i { display: block; height: 100%; width: 0; background: var(--accent); }
+
+/* ───────── Identificação da empresa e links legais no rodapé ───────── */
+.footer .company { display: grid; gap: 3px; font-style: normal; font-size: 13px; margin-bottom: 12px; overflow-wrap: anywhere; }
+.footer .company strong { color: var(--text); font-size: 13.5px; }
+.footer .company a { color: var(--accent); }
+.foot-legal { display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: center; }
+.foot-legal a:hover, .foot-legal .linklike:hover { color: var(--accent); }

@@ -13,10 +13,19 @@ final class Stripe
     }
 
     /** @param array<string,mixed> $params @return array<string,mixed> */
-    public function post(string $path, array $params): array
+    public function post(string $path, array $params, ?string $idempotencyKey = null): array
     {
-        $res = $this->http->request('POST', self::API . $path, $this->headers(), http_build_query($params));
-        return $this->decode($res);
+        $headers = $this->headers();
+        if ($idempotencyKey !== null) {
+            $headers[] = 'Idempotency-Key: ' . $idempotencyKey; // repetir a chamada não duplica o reembolso
+        }
+        return $this->decode($this->http->request('POST', self::API . $path, $headers, http_build_query($params)));
+    }
+
+    /** @return array<string,mixed> */
+    public function delete(string $path): array
+    {
+        return $this->decode($this->http->request('DELETE', self::API . $path, $this->headers()));
     }
 
     /** @return array<string,mixed> */

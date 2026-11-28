@@ -6,13 +6,15 @@
   <meta name="robots" content="noindex" />
   <title>Entrar — HomeLab</title>
   <link rel="icon" href="/assets/icon.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
   <script src="/assets/js/theme-init.js"></script>
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/assets/css/account.css" />
+  <link rel="stylesheet" href="/assets/css/legal.css" />
+  <link rel="stylesheet" href="/assets/css/consent.css" />
 </head>
-<body>
+<body class="has-footer">
   <main class="acc">
     <a class="acc-brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
     <section class="acc-card">
@@ -22,6 +24,13 @@
       <div class="acc-actions">
         <button class="btn hx btn-primary" id="login" type="button">Entrar com Google</button>
         <a class="btn hx" id="continue" href="/assinaturas/" hidden>Ver minha assinatura</a>
+      </div>
+      <div class="acc-terms" id="terms-step" hidden>
+        <label class="acc-check">
+          <input type="checkbox" id="terms-check" />
+          <span>Li e aceito os <a href="/termos/" target="_blank" rel="noopener">Termos de Uso</a> e a <a href="/privacidade/" target="_blank" rel="noopener">Política de Privacidade</a>.</span>
+        </label>
+        <button class="btn hx btn-primary" id="terms-accept" type="button" disabled>Aceitar e continuar</button>
       </div>
       <p class="acc-note">Só pedimos seu nome, e-mail e foto. Seus resumos e arquivos ficam no seu computador.</p>
     </section>
@@ -36,6 +45,52 @@
       </div>
     </div>
   </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
+          <p>Transforme vídeos, aulas e PDFs em conhecimento organizado, no seu computador.</p>
+        </div>
+        <div>
+          <h4>Conta</h4>
+          <ul>
+            <li><a href="/entrar/">Entrar com Google</a></li>
+            <li><a href="/assinaturas/">Assinaturas</a></li>
+            <li><a href="/#planos">Planos</a></li>
+            <li><a href="/">Página inicial</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Documentos</h4>
+          <ul>
+            <li><a href="/termos/">Termos de uso</a></li>
+            <li><a href="/privacidade/">Privacidade e cookies</a></li>
+            <li><a href="/arrependimento/">Direito de arrependimento</a></li>
+            <li><button class="linklike" type="button" data-consent-open>Preferências de cookies</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Empresa</h4>
+          <address class="company" aria-label="Identificação do fornecedor">
+            <strong data-empresa="razaoSocial"></strong>
+            <span>CNPJ: <span data-empresa="cnpj"></span></span>
+            <span data-empresa="endereco"></span>
+            <a data-empresa="email" data-empresa-mailto></a>
+          </address>
+          <ul>
+            <li><a href="/contato/">Contato</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 HomeLab · Licença MIT · Feito para quem estuda.</span>
+      </div>
+    </div>
+  </footer>
+  <script src="/assets/js/empresa.js" defer></script>
+  <script src="/assets/js/trackers-config.js"></script>
+  <script src="/assets/js/consent.js" defer></script>
   <script type="module" src="/assets/js/entrar.js"></script>
 </body>
 </html>

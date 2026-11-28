@@ -70,13 +70,17 @@ final class WebhookRoute implements Route
         if ($customer !== null) {
             $this->subscriptions->linkCustomer($key, $customer);
         }
-        $this->subscriptions->applySubscription($key, [
+        $record = [
             'id' => $sub['id'],
             'status' => (string) ($sub['status'] ?? 'canceled'),
             'priceId' => $priceId,
             'currentPeriodEnd' => $periodEnd,
             'cancelAtPeriodEnd' => ($sub['cancel_at_period_end'] ?? false) === true,
-        ], $created);
+        ];
+        if (is_int($sub['start_date'] ?? null)) {
+            $record['startedAt'] = $sub['start_date']; // início da contratação: conta os 7 dias de arrependimento
+        }
+        $this->subscriptions->applySubscription($key, $record, $created);
     }
 
     private function isUserKey(string $key): bool

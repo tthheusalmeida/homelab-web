@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Homelab\Routes;
 
+use Homelab\Compliance;
 use Homelab\Entitlement;
 use Homelab\Plans;
 use Homelab\Request;
@@ -11,6 +12,7 @@ use Homelab\Route;
 use Homelab\Signer;
 use Homelab\UsageQuota;
 use Homelab\UserRepository;
+use Homelab\WithdrawalPolicy;
 
 /** Primeiro acesso cria o registro (e inicia o trial). Devolve o plano e a cota do dia, assinados. */
 final class MeRoute implements Route
@@ -21,6 +23,8 @@ final class MeRoute implements Route
         private Entitlement $entitlement,
         private Plans $plans,
         private Signer $signer,
+        private Compliance $compliance,
+        private WithdrawalPolicy $withdrawal,
     ) {
     }
 
@@ -35,6 +39,7 @@ final class MeRoute implements Route
         $key = $identity['uid'];
         $ent = $this->entitlement->compute($user, $now);
         $used = $this->quota->usageToday($key, $now);
+        $legal = $this->compliance->status($user);
 
         $quotas = [];
         foreach (Plans::DAILY_FEATURES as $feature) {
@@ -48,6 +53,9 @@ final class MeRoute implements Route
             'cancelsAtPeriodEnd' => $ent['cancelsAtPeriodEnd'],
             'permissions' => $ent['permissions'],
             'quotas' => $quotas,
+            'terms' => ['currentVersion' => $legal['termsVersion'], 'accepted' => $legal['termsAccepted'], 'acceptedAt' => $legal['termsAcceptedAt']],
+            'age' => ['required' => $legal['ageRequired'], 'verified' => $legal['ageVerified']],
+            'withdrawalUntil' => $this->withdrawal->eligibleUntil($user, $now),
             'serverTime' => $now,
         ];
         $body['signed'] = $this->signer->sign([
@@ -56,6 +64,8 @@ final class MeRoute implements Route
             'permissions' => $ent['permissions'],
             'trialEndsAt' => $ent['trialEndsAt'],
             'proValidUntil' => $ent['proValidUntil'],
+            'termsOk' => $legal['termsAccepted'],
+            'ageOk' => !$legal['ageRequired'] || $legal['ageVerified'],
             'iat' => $now,
             'exp' => $ent['expiresAt'],
         ]);

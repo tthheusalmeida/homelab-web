@@ -14,6 +14,8 @@ return [
         'webhookSecret' => 'whsec_...',
         'proPriceActive' => 'price_...',       // usado em novos checkouts
         'proPricesAccepted' => ['price_...'],  // todos que valem como Pro (inclui os antigos)
+        'requireTermsConsent' => false,        // true só com a URL dos Termos cadastrada no painel do Stripe
     ],
+    'compliance' => ['requireAgeVerification' => false], // true só quando houver método de verificação de idade
     'signing' => ['secretKey' => '<base64 Ed25519>'],
 ];

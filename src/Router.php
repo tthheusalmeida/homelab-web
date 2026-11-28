@@ -12,10 +12,25 @@ final class Router
         private array $guards,
         private FirebaseAuth $auth,
         private Logger $log,
+        private AccessLog $access,
     ) {
     }
 
     public function dispatch(Request $request, int $now): Response
+    {
+        $uid = null;
+        $response = $this->handle($request, $now, $uid);
+        if ($response->status !== 429) { // bloqueio por excesso de requisições não vira registro (evita encher o banco num ataque)
+            try {
+                $this->access->record($request, $uid, $response->status, $now);
+            } catch (\Throwable $e) {
+                $this->log->error('access log: ' . get_class($e));
+            }
+        }
+        return $response;
+    }
+
+    private function handle(Request $request, int $now, ?string &$uid): Response
     {
         $route = $this->find($request);
         if ($route === null) {
@@ -36,6 +51,7 @@ final class Router
                     return new Response(401, ['error' => 'unauthorized']);
                 }
                 $identity = $this->auth->verify($token, $now);
+                $uid = $identity['uid'];
             }
             return $route->handle($request, $identity, $now);
         } catch (AuthException) {

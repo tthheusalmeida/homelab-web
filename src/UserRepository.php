@@ -34,6 +34,22 @@ final class UserRepository
         return $data;
     }
 
+    public function acceptTerms(string $key, string $version, int $now): void
+    {
+        $this->store->merge('users/' . $key, ['termsVersion' => $version, 'termsAcceptedAt' => $now]);
+    }
+
+    /** Chamado por quem verifica a idade (ver docs/conformidade.md). Grava só o método e o momento, nunca a data de nascimento. */
+    public function markAgeVerified(string $key, string $method, int $now): void
+    {
+        $this->store->merge('users/' . $key, ['ageVerified' => ['method' => $method, 'at' => $now]]);
+    }
+
+    public function recordWithdrawal(string $key, string $subscriptionId, int $now): void
+    {
+        $this->store->merge('users/' . $key, ['withdrawal' => ['subscriptionId' => $subscriptionId, 'at' => $now]]);
+    }
+
     /** @return array<string,mixed>|null */
     public function find(string $key): ?array
     {

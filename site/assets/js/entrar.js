@@ -28,14 +28,49 @@ function setBusy(busy) {
   btn.textContent = busy ? "Entrando…" : loginLabel;
 }
 
+/** Pede o aceite explícito dos Termos e da Política vigentes. Resolve quando o servidor registrou o aceite. */
+function askTerms(version) {
+  return new Promise((resolve) => {
+    const check = document.getElementById("terms-check");
+    const accept = document.getElementById("terms-accept");
+    setText("title", "Antes de continuar");
+    setText("subtitle", "Para usar o HomeLab, leia e aceite os Termos de Uso e a Política de Privacidade.");
+    show("login", false);
+    show("terms-step", true);
+    check.addEventListener("change", () => { accept.disabled = !check.checked; });
+    accept.addEventListener("click", async () => {
+      accept.disabled = true;
+      accept.classList.add("loading");
+      try {
+        await api("/terms/accept", { method: "POST", body: { version } });
+        show("terms-step", false);
+        resolve();
+      } catch (e) {
+        accept.disabled = false;
+        accept.classList.remove("loading");
+        fail("Não foi possível registrar o aceite agora. Tente de novo em instantes.");
+      }
+    });
+  });
+}
+
 async function afterLogin(user) {
   // O botão continua no lugar (só fica "carregando") até a resposta chegar: o card não muda de altura.
   setBusy(true);
+  let me;
   try {
-    await api("/me"); // o primeiro acesso cria o registro e inicia o trial (no servidor)
+    me = await api("/me"); // o primeiro acesso cria o registro e inicia o trial (no servidor)
   } catch (e) {
     fail("Não foi possível confirmar sua conta agora. Tente de novo em instantes.");
     setBusy(false);
+    return;
+  }
+  if (me.terms && !me.terms.accepted) await askTerms(me.terms.currentVersion);
+  if (me.age && me.age.required && !me.age.verified) {
+    // Autodeclaração de idade não vale: só entra quando a verificação (feita no servidor) estiver registrada.
+    setText("title", "Falta verificar sua idade");
+    setText("subtitle", "Por lei, precisamos verificar que você é maior de idade. Essa etapa estará disponível em breve; volte depois.");
+    show("login", false);
     return;
   }
   if (appFlowValid) return backToApp(user);

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Homelab\Compliance;
 use Homelab\Signer;
 use Homelab\UserRepository;
 
@@ -60,6 +61,7 @@ test('when /me is the trial, should list one use per day for each feature', func
 
 test('when the trial user uses a feature once, should allow and then block', function () use ($call) {
     $app = makeApp();
+    withTerms($app);
     eq(200, $call($app, authed('POST', '/usage', 'ana@example.com', '{"feature":"summary"}'))->status);
     eq(429, $call($app, authed('POST', '/usage', 'ana@example.com', '{"feature":"summary"}'))->status);
 });
@@ -68,11 +70,12 @@ test('when the feature is invalid, should answer 400', function () use ($call) {
 });
 test('when the trial is over, should answer 403 on usage', function () use ($call) {
     $app = makeApp();
-    $app['store']->create('users/' . userKey(), ['email' => 'ana@example.com', 'uid' => 'x', 'trialStartedAt' => NOW - 9 * 86400]);
+    $app['store']->create('users/' . userKey(), ['email' => 'ana@example.com', 'uid' => 'x', 'trialStartedAt' => NOW - 9 * 86400, 'termsVersion' => Compliance::TERMS_VERSION]);
     eq(403, $call($app, authed('POST', '/usage', 'ana@example.com', '{"feature":"summary"}'))->status);
 });
 test('when the user is pro, should allow unlimited uses', function () use ($call, $me, $hook) {
     $app = makeApp();
+    withTerms($app);
     $me($app);
     $hook($app, subscriptionEvent('customer.subscription.created', 'ana@example.com', PRICE_NEW));
     for ($i = 0; $i < 5; $i++) {
@@ -82,6 +85,7 @@ test('when the user is pro, should allow unlimited uses', function () use ($call
 
 test('when creating a checkout, should use the configured price and ignore the body', function () use ($call) {
     $app = makeApp();
+    withTerms($app);
     $app['http']->on('api.stripe.com/v1/checkout/sessions', fn () => ['status' => 200, 'body' => '{"url":"https://checkout.stripe.com/c/pay/cs_1"}']);
     $r = $call($app, authed('POST', '/checkout', 'ana@example.com', '{"price":"price_free","userKey":"u_outro"}'));
     eq(200, $r->status);
@@ -94,12 +98,14 @@ test('when creating a checkout, should use the configured price and ignore the b
 });
 test('when the user is already pro, should refuse a second checkout', function () use ($call, $me, $hook) {
     $app = makeApp();
+    withTerms($app);
     $me($app);
     $hook($app, subscriptionEvent('customer.subscription.created', 'ana@example.com', PRICE_NEW));
     eq(409, $call($app, authed('POST', '/checkout'))->status);
 });
 test('when Stripe returns an unexpected checkout URL, should fail with 500', function () use ($call) {
     $app = makeApp();
+    withTerms($app);
     $app['http']->on('api.stripe.com/v1/checkout/sessions', fn () => ['status' => 200, 'body' => '{"url":"https://evil.example/pay"}']);
     eq(500, $call($app, authed('POST', '/checkout'))->status);
 });
@@ -211,6 +217,7 @@ test('when Stripe is down, should answer plans with a null price instead of fail
 });
 test('when an internal error happens, should answer 500 without leaking details', function () use ($call) {
     $app = makeApp();
+    withTerms($app);
     $app['http']->reply('api.stripe.com/v1/checkout/sessions', 500, 'segredo-interno');
     $r = $call($app, authed('POST', '/checkout'));
     eq(500, $r->status);

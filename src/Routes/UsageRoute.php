@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Homelab\Routes;
 
+use Homelab\Compliance;
 use Homelab\Entitlement;
 use Homelab\Plans;
 use Homelab\Request;
@@ -14,7 +15,7 @@ use Homelab\UserRepository;
 /** Consome 1 da cota diária de um recurso. Contada no servidor: gerar com limite exige internet. */
 final class UsageRoute implements Route
 {
-    public function __construct(private UserRepository $users, private UsageQuota $quota, private Entitlement $entitlement, private Plans $plans)
+    public function __construct(private UserRepository $users, private UsageQuota $quota, private Entitlement $entitlement, private Plans $plans, private Compliance $compliance)
     {
     }
 
@@ -30,6 +31,10 @@ final class UsageRoute implements Route
             return new Response(400, ['error' => 'invalid_feature']);
         }
         $user = $this->users->ensure($identity, $now);
+        $blocker = $this->compliance->blocker($user);
+        if ($blocker !== null) {
+            return new Response(403, ['error' => $blocker]);
+        }
         $ent = $this->entitlement->compute($user, $now);
         if ($ent['plan'] === 'expired') {
             return new Response(403, ['error' => 'plan_expired']);

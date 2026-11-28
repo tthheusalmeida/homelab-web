@@ -28,7 +28,7 @@ final class SubscriptionRepository
 
     /**
      * Grava o estado da assinatura. Evento mais antigo que o já gravado é ignorado (eventos chegam fora de ordem).
-     * @param array{id:string,status:string,priceId:string,currentPeriodEnd:int,cancelAtPeriodEnd:bool} $sub
+     * @param array{id:string,status:string,priceId:string,currentPeriodEnd:int,cancelAtPeriodEnd:bool,startedAt?:int} $sub
      */
     public function applySubscription(string $key, array $sub, int $eventCreated): bool
     {
