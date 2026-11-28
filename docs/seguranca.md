@@ -47,3 +47,7 @@ Só se **um** destes for verdade (confira com `php tools/check-env.php` por SSH)
 - você não aceita guardar o segredo como arquivo num servidor compartilhado (um Worker guarda segredos cifrados, sem sistema de arquivos).
 
 A API foi escrita para isso ser fácil: as regras ficam em classes pequenas (`Entitlement`, `Plans`, `Stripe`) e o armazenamento atrás de `DocumentStore`; portar para outro runtime é reescrever os mesmos 6 endpoints.
+
+## Registro de acesso e consentimento (Marco Civil e LGPD)
+- O `Router` grava cada acesso à API (IP, data e hora, rota, status, uid) em `accessLogs` no Firestore, com `expireAt` para o TTL apagar em ~6 meses. Só o servidor grava; as regras do Firestore negam o resto, então os logs não saem por rota nenhuma. Nunca entram token, cabeçalho nem corpo. Detalhes e a ativação do TTL em `docs/conformidade.md`.
+- A escolha do banner de cookies vai para `consents` sem dado pessoal. Rastreadores de terceiros só carregam depois do aceite; fontes e three.js são servidos pelo próprio site (nada vaza o IP do visitante só por abrir a landing).

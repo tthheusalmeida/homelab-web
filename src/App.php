@@ -4,9 +4,12 @@ declare(strict_types=1);
 namespace Homelab;
 
 use Homelab\Routes\CheckoutRoute;
+use Homelab\Routes\ConsentRoute;
 use Homelab\Routes\MeRoute;
 use Homelab\Routes\PlansRoute;
 use Homelab\Routes\PortalRoute;
+use Homelab\Routes\RefundRoute;
+use Homelab\Routes\TermsRoute;
 use Homelab\Routes\UsageRoute;
 use Homelab\Routes\WebhookRoute;
 use Homelab\Store\DocumentStore;
@@ -42,17 +45,22 @@ final class App
         $signer = new Signer($config->string('signing.secretKey'));
         $stripe = new Stripe($config->string('stripe.secretKey'), $http);
         $siteUrl = rtrim($config->string('siteUrl'), '/');
+        $compliance = new Compliance($config->get('compliance.requireAgeVerification', false) === true);
+        $withdrawal = new WithdrawalPolicy();
 
         $routes = [
-            new MeRoute($users, $quota, $entitlement, $plans, $signer),
+            new MeRoute($users, $quota, $entitlement, $plans, $signer, $compliance, $withdrawal),
             new PlansRoute(new PriceCatalog($plans, $stripe, $cache)),
-            new UsageRoute($users, $quota, $entitlement, $plans),
-            new CheckoutRoute($users, $entitlement, $plans, $stripe, $siteUrl),
+            new UsageRoute($users, $quota, $entitlement, $plans, $compliance),
+            new CheckoutRoute($users, $entitlement, $plans, $stripe, $siteUrl, $compliance, $config->get('stripe.requireTermsConsent', false) === true),
             new PortalRoute($users, $stripe, $siteUrl),
+            new RefundRoute($users, $subscriptions, $withdrawal, $stripe),
+            new TermsRoute($users),
+            new ConsentRoute($store),
             new WebhookRoute($users, $subscriptions, new WebhookVerifier($config->string('stripe.webhookSecret')), $log),
         ];
         $origins = $config->get('allowedOrigins', [$siteUrl]);
         $guards = [new RateLimitGuard($limiter), new OriginGuard(is_array($origins) ? $origins : [$siteUrl])];
-        return new Router($routes, $guards, new FirebaseAuth($config->string('firebase.projectId'), $http, $cache), $log);
+        return new Router($routes, $guards, new FirebaseAuth($config->string('firebase.projectId'), $http, $cache), $log, new StoreAccessLog($store, ['/webhook']));
     }
 }

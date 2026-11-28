@@ -43,7 +43,11 @@ $config = [
         'webhookSecret' => need('STRIPE_WEBHOOK_SECRET'),
         'proPriceActive' => need('STRIPE_PRO_PRICE_ACTIVE'),
         'proPricesAccepted' => array_values(array_filter(array_map('trim', explode(',', getenv('STRIPE_PRO_PRICES_ACCEPTED') ?: '')))),
+        // true só depois de cadastrar a URL dos Termos no painel do Stripe (senão o checkout falha)
+        'requireTermsConsent' => getenv('STRIPE_REQUIRE_TERMS_CONSENT') === 'true',
     ],
+    // true só quando houver um método de verificação de idade em produção (ver docs/conformidade.md)
+    'compliance' => ['requireAgeVerification' => getenv('REQUIRE_AGE_VERIFICATION') === 'true'],
     'signing' => ['secretKey' => need('SIGNING_SECRET_KEY')],
 ];
 $dir = dirname($dest);

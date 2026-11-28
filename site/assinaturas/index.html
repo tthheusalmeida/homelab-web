@@ -6,13 +6,15 @@
   <meta name="robots" content="noindex" />
   <title>Assinatura — HomeLab</title>
   <link rel="icon" href="/assets/icon.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/assets/css/fonts.css" />
   <script src="/assets/js/theme-init.js"></script>
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/assets/css/account.css" />
+  <link rel="stylesheet" href="/assets/css/legal.css" />
+  <link rel="stylesheet" href="/assets/css/consent.css" />
 </head>
-<body class="has-header">
+<body class="has-header has-footer">
   <header class="acc-header">
     <a class="acc-brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
     <div class="acc-userbar" id="userbar" hidden>
@@ -73,6 +75,15 @@
           <button class="btn hx btn-primary" id="subscribe" type="button" hidden>Assinar o Pro</button>
           <button class="btn hx" id="manage" type="button" hidden>Gerenciar assinatura</button>
           <a class="btn hx btn-primary" id="signin" href="/entrar/?next=assinaturas" hidden>Entrar para assinar</a>
+          <p class="checkout-terms" id="checkout-terms">
+            <strong>Assinatura mensal de <span id="price-terms">R$ 29,90</span>, com renovação automática</strong> todo mês, no mesmo cartão, até você cancelar.
+            Cancele quando quiser em “Gerenciar assinatura”, o mesmo lugar da compra. Você pode <strong>desistir em até 7 dias</strong>, sem justificar, com <strong>reembolso integral</strong>.
+            Ao assinar, você concorda com os <a href="/termos/#renovacao" target="_blank" rel="noopener">Termos</a> e com o <a href="/arrependimento/" target="_blank" rel="noopener">direito de arrependimento</a>.
+          </p>
+          <div class="withdraw" id="withdraw" hidden>
+            <p id="withdraw-text"></p>
+            <button class="btn hx" id="withdraw-btn" type="button">Desistir da compra e pedir reembolso</button>
+          </div>
         </div>
       </div>
 </article>
@@ -80,7 +91,53 @@
 
     <p class="acc-note">Pagamento seguro pelo Stripe, cancele quando quiser. Os dados do cartão nunca passam pelo HomeLab.</p>
   </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-about">
+          <a class="brand" href="/"><img src="/assets/icon.png" alt="" width="28" height="28" /> HomeLab</a>
+          <p>Transforme vídeos, aulas e PDFs em conhecimento organizado, no seu computador.</p>
+        </div>
+        <div>
+          <h4>Conta</h4>
+          <ul>
+            <li><a href="/entrar/">Entrar com Google</a></li>
+            <li><a href="/assinaturas/">Assinaturas</a></li>
+            <li><a href="/#planos">Planos</a></li>
+            <li><a href="/">Página inicial</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Documentos</h4>
+          <ul>
+            <li><a href="/termos/">Termos de uso</a></li>
+            <li><a href="/privacidade/">Privacidade e cookies</a></li>
+            <li><a href="/arrependimento/">Direito de arrependimento</a></li>
+            <li><button class="linklike" type="button" data-consent-open>Preferências de cookies</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Empresa</h4>
+          <address class="company" aria-label="Identificação do fornecedor">
+            <strong data-empresa="razaoSocial"></strong>
+            <span>CNPJ: <span data-empresa="cnpj"></span></span>
+            <span data-empresa="endereco"></span>
+            <a data-empresa="email" data-empresa-mailto></a>
+          </address>
+          <ul>
+            <li><a href="/contato/">Contato</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 HomeLab · Licença MIT · Feito para quem estuda.</span>
+      </div>
+    </div>
+  </footer>
   <div class="snack-host" id="snack"></div>
+  <script src="/assets/js/empresa.js" defer></script>
+  <script src="/assets/js/trackers-config.js"></script>
+  <script src="/assets/js/consent.js" defer></script>
   <script type="module" src="/assets/js/assinaturas.js"></script>
 </body>
 </html>

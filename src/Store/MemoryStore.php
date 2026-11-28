@@ -8,6 +8,18 @@ final class MemoryStore implements DocumentStore
     /** @var array<string,array{data:array<string,mixed>,version:int}> */
     private array $docs = [];
 
+    /** Documentos de uma coleção (só para conferir nos testes). @return array<string,array<string,mixed>> */
+    public function all(string $collection): array
+    {
+        $out = [];
+        foreach ($this->docs as $path => $doc) {
+            if (str_starts_with($path, $collection . '/')) {
+                $out[$path] = $doc['data'];
+            }
+        }
+        return $out;
+    }
+
     public function get(string $path): ?array
     {
         if (!isset($this->docs[$path])) {

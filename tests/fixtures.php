@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Homelab\App;
+use Homelab\Compliance;
 use Homelab\Config;
 use Homelab\FileCache;
 use Homelab\Jwt;
@@ -55,19 +56,19 @@ function firebaseToken(string $email = 'ana@example.com', array $override = []):
 }
 
 /** @return array{router:Router,http:FakeHttp,store:MemoryStore,signer:array{publicKey:string,secretKey:string}} */
-function makeApp(?string $dir = null): array
+function makeApp(?string $dir = null, array $extraConfig = []): array
 {
     $dir ??= tmpDir();
     $http = new FakeHttp();
     $http->reply('securetoken@system.gserviceaccount.com', 200, ['k1' => rsaPair()['public']]);
     $keys = Signer::generate();
-    $config = new Config([
+    $config = new Config(array_replace_recursive([
         'siteUrl' => 'https://homelab.test',
         'allowedOrigins' => ['https://homelab.test'],
         'firebase' => ['projectId' => PROJECT],
         'stripe' => ['secretKey' => 'rk_test', 'webhookSecret' => WEBHOOK_SECRET, 'proPriceActive' => PRICE_NEW, 'proPricesAccepted' => [PRICE_OLD]],
         'signing' => ['secretKey' => $keys['secretKey']],
-    ]);
+    ], $extraConfig));
     $store = new MemoryStore();
     $router = App::build($config, $store, $http, new FileCache($dir . '/cache'), new RateLimiter($dir . '/rl'), new Logger($dir . '/log'));
     return ['router' => $router, 'http' => $http, 'store' => $store, 'signer' => $keys];
@@ -114,4 +115,10 @@ function subscriptionEvent(string $type, string $email, string $priceId, string 
             'items' => ['data' => [['price' => ['id' => $priceId], 'current_period_end' => $periodEnd]]],
         ]],
     ];
+}
+
+/** Faz o usuário aceitar os termos vigentes (sem isso a API barra uso e checkout). */
+function withTerms(array $app, string $email = 'ana@example.com'): void
+{
+    $app['router']->dispatch(authed('POST', '/terms/accept', $email, (string) json_encode(['version' => Compliance::TERMS_VERSION])), NOW);
 }

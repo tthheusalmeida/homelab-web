@@ -27,6 +27,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Tests (o deploy só segue se passarem)
         run: php tests/run.php
+      - name: Dados da empresa preenchidos (barra o deploy com *_DEFAULT no site)
+        run: php tools/check-company.php
       - name: Gerar config.php a partir dos secrets
         env:
           SITE_URL: ${{ vars.SITE_URL }}
@@ -36,6 +38,8 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT_B64: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_B64 }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          STRIPE_REQUIRE_TERMS_CONSENT: ${{ vars.STRIPE_REQUIRE_TERMS_CONSENT }}
+          REQUIRE_AGE_VERIFICATION: ${{ vars.REQUIRE_AGE_VERIFICATION }}
           SIGNING_SECRET_KEY: ${{ secrets.SIGNING_SECRET_KEY }}
         run: php tools/build-config.php "$RUNNER_TEMP/config.php"
       - name: Preparar SSH (chave de deploy e host conferido)

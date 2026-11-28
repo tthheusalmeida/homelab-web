@@ -1,0 +1,4 @@
+# Páginas legais: CSP estrita (sem script inline e sem terceiros). Rastreadores só rodam na landing.
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+</IfModule>

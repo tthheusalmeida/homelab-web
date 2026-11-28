@@ -40,7 +40,16 @@ function renderSignedOut() {
   });
 }
 
+/** Desistência em até 7 dias (CDC, art. 49): só aparece para quem ainda está no prazo. */
+function paintWithdrawal(me) {
+  const until = me.plan === "pro" ? me.withdrawalUntil : null;
+  show("withdraw", Boolean(until));
+  if (until) setText("withdraw-text", "Você pode desistir da compra até " + fmtDate(until) + ", sem justificar, com reembolso integral.");
+  resetWithdrawButton();
+}
+
 function render(me) {
+  paintWithdrawal(me);
   const now = Date.now() / 1000;
   if (me.plan === "pro") {
     const cancel = me.cancelsAtPeriodEnd;
@@ -84,7 +93,7 @@ async function waitForPro() {
 
 async function start() {
   try {
-    api("/plans").then((p) => { if (p.pro) setText("price", fmtMoney(p.pro.amount, p.pro.currency)); }).catch(() => {});
+    api("/plans").then((p) => { if (p.pro) { const price = fmtMoney(p.pro.amount, p.pro.currency); setText("price", price); setText("price-terms", price); } }).catch(() => {});
     if (status === "ok") await waitForPro(); else await load();
     if (status === "cancel") note("info", "Pagamento cancelado. Você pode assinar quando quiser.");
   } catch (e) {
@@ -104,7 +113,46 @@ async function go(path, button, errorText) {
   } catch (e) {
     button.disabled = false;
     button.classList.remove("loading");
+    if (e.code === "terms_required") return location.assign("/entrar/?next=assinaturas"); // aceitar os termos vigentes antes de pagar
+    if (e.code === "age_required") return note("error", "Falta verificar a sua idade para assinar. Em breve essa etapa estará disponível.");
     note("error", e.code === "already_pro" ? "Você já tem o plano Pro." : errorText);
+  }
+}
+
+const WITHDRAW_LABEL = "Desistir da compra e pedir reembolso";
+let withdrawTimer = 0;
+function resetWithdrawButton() {
+  clearTimeout(withdrawTimer);
+  const btn = document.getElementById("withdraw-btn");
+  btn.textContent = WITHDRAW_LABEL;
+  btn.dataset.confirm = "";
+  btn.disabled = false;
+  btn.classList.remove("loading");
+}
+
+/** Dois cliques: o primeiro pede confirmação (some sozinho em 8 s), o segundo desiste e pede o reembolso integral. */
+async function withdraw(btn) {
+  if (btn.dataset.confirm !== "1") {
+    btn.dataset.confirm = "1";
+    btn.textContent = "Confirmar: cancelar e reembolsar";
+    withdrawTimer = setTimeout(resetWithdrawButton, 8000);
+    return;
+  }
+  clearTimeout(withdrawTimer);
+  btn.disabled = true;
+  btn.classList.add("loading");
+  try {
+    await api("/refund", { method: "POST", body: {} });
+    note("success", "Pronto! Sua assinatura foi cancelada e o reembolso integral foi solicitado. O prazo para aparecer na fatura depende da operadora do cartão.", { duration: 12000 });
+    await load();
+  } catch (e) {
+    resetWithdrawButton();
+    const messages = {
+      withdrawal_period_over: "O prazo de 7 dias já passou. Você ainda pode cancelar em “Gerenciar assinatura”.",
+      already_withdrawn: "Esta compra já foi cancelada e reembolsada.",
+    };
+    note("error", messages[e.code] || "Não foi possível pedir o reembolso agora. Tente de novo ou escreva para o nosso e-mail de contato.");
+    load().catch(() => {});
   }
 }
 
@@ -117,5 +165,6 @@ if (!configured) { renderSignedOut(); } else {
   });
   document.getElementById("subscribe").addEventListener("click", (e) => go("/checkout", e.currentTarget, "Não foi possível abrir o pagamento. Tente de novo."));
   document.getElementById("manage").addEventListener("click", (e) => go("/portal", e.currentTarget, "Não foi possível abrir o portal. Tente de novo."));
+  document.getElementById("withdraw-btn").addEventListener("click", (e) => withdraw(e.currentTarget));
   document.getElementById("logout").addEventListener("click", async () => { await logout(); location.assign("/"); });
 }
